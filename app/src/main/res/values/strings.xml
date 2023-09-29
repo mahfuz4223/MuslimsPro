@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MuslimsPro</string>
+
+    <string name="dhaka_bangladesh">Dhaka,Bangladesh</string>
+    <string name="upcoming_prayer">UPCOMING PRAYER</string>
+    <string name="Asr">Asr</string>
+    <string name="time">05:06 PM</string>
+    <string name="next_time">1 Hours and 30 Minutes</string>
+    <string name="dahur">Dahur</string>
+    <string name="Sunrise">Sunrise</string>
+    <string name="_00_00">05:10 AM</string>
+    <string name="_00_00_">05:10 PM</string>
+    <string name="Sunset">Sunset</string>
+    <string name="next_prayer">ওয়াক্ত শেষ হতে বাকি</string>
+
+    <string name="Hadith">Hadith</string>
+</resources>
