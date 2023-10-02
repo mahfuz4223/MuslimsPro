@@ -14,4 +14,15 @@
     <string name="next_prayer">ওয়াক্ত শেষ হতে বাকি</string>
 
     <string name="Hadith">Hadith</string>
+
+
+    <string-array name="hijri_adjustment_options">
+        <item>+2</item>
+        <item>+1</item>
+        <item>0</item>
+        <item>-1</item>
+        <item>-2</item>
+    </string-array>
+
+
 </resources>

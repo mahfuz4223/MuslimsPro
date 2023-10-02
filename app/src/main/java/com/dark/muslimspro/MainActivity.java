@@ -29,6 +29,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
     private int scrollPosition = 0;
+    private   MaterialCardView tasbihCardView;
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -97,6 +99,10 @@ public class MainActivity extends AppCompatActivity {
         hijriyear_text = findViewById(R.id.hijri_year);
         current_prayer_time_name_Text = findViewById(R.id.current_prayer_time_name);
 
+
+        // Find the MaterialCardView with ID "tasbih"
+        tasbihCardView = findViewById(R.id.tasbih);
+
         requestQueue = Volley.newRequestQueue(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         sharedPreferences = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
@@ -114,12 +120,34 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the NetworkChangeReceiver
         networkChangeReceiver = new NetworkChangeReceiver(this);
 
+
+
+
+
+        // Set an OnClickListener on the tasbihCardView
+        tasbihCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the desired activity
+                Intent intent = new Intent(MainActivity.this, TasbihActivity.class);
+
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
+
+
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             // Request location updates
             getLocation();
         }
+
+
+
+
 
         // If there is no network connection, retrieve data from SharedPreferences
         retrieveDataFromSharedPreferences();
@@ -226,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                             // Update the sunrise and sunset TextViews
                             sunriseText.setText(convertTo12HourFormat(sunriseTime));
                             sunsetText.setText(convertTo12HourFormat(sunsetTime));
-                            hidate_text.setText(hijri_date);
+                            hidate_text.setText(hijri_date  + " - " + 1);
                             hijrimonth_text.setText(" " + hijri_month);
                             hijriyear_text.setText(" " + hijri_year);
 
@@ -277,7 +305,11 @@ public class MainActivity extends AppCompatActivity {
                 Date prayerTimeDate = sdf.parse(prayerTime);
 
                 if (current.before(prayerTimeDate)) {
-                    upcomingPrayer = prayer;
+                    if (prayer.getPrayerName().equals("Lastthird")) {
+                        upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
+                    } else {
+                        upcomingPrayer = prayer;
+                    }
                     break;
                 } else {
                     currentPrayer = prayer;
@@ -311,6 +343,9 @@ public class MainActivity extends AppCompatActivity {
             next_prayer_time.setText("");
         }
     }
+
+
+
 
     private List<PrayerTimeModel> calculatePrayerTimes(PrayerTimeResponse prayerTimeResponse) {
         List<PrayerTimeModel> prayerTimes = new ArrayList<>();
@@ -420,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
     private void retrieveDataFromSharedPreferences() {
         String sunriseTime = sharedPreferences.getString("sunriseTime", "");
         String sunsetTime = sharedPreferences.getString("sunsetTime", "");
-        String hijri_date = sharedPreferences.getString("hijriDate", "");
+        String hijri_date = sharedPreferences.getString("hijriDate", "" );
         String hijri_month = sharedPreferences.getString("hijriMonth", "");
         String hijri_year = sharedPreferences.getString("hijriYear", "");
         String hijri_holiday = sharedPreferences.getString("hijriHoliday", "");

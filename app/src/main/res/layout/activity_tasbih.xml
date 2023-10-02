@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/tasbih_progress_sc"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@android:color/background_light"
+    tools:context=".TasbihActivity"
+    >
+
+    <TextView
+        android:id="@+id/tasbih_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/engl"
+        android:text="Subhanallah (سُبْحَانَ اللَّهِ)"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
+
+
+
+    <!-- Progress color -->
+    <com.dark.muslimspro.CircularProgressBar
+        android:id="@+id/tasbih_progress"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/tasbih_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tasbih_count"
+        android:progressTint="@color/purple_500" />
+
+
+
+    <TextView
+        android:id="@+id/tasbih_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tasbih_progress"
+        android:layout_alignTop="@+id/tasbih_progress"
+        android:layout_alignEnd="@+id/tasbih_progress"
+        android:layout_alignBottom="@+id/tasbih_progress"
+        android:fontFamily="@font/dgn"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@android:color/black"
+        android:textSize="48sp" />
+
+    <Button
+        android:id="@+id/increment_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tasbih_progress"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:fontFamily="@font/engl"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Count" />
+
+
+
+</RelativeLayout>
