@@ -9,7 +9,7 @@ import android.view.View;
 public class CircularProgressBar extends View {
     private int maxProgress = 100;
     private int currentProgress = 0;
-    private int circleStrokeWidth = 10; // Adjust as needed
+    private int circleStrokeWidth = 20; // Adjust as needed
     private int progressColor = 0xFF00FF00; // Green color
     private int backgroundColor = 0xFFCCCCCC; // Gray color
 

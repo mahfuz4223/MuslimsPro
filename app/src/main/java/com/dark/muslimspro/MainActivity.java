@@ -32,6 +32,7 @@ import com.dark.muslimspro.prayertime.PrayerTimeApiService;
 import com.dark.muslimspro.prayertime.PrayerTimeModel;
 import com.dark.muslimspro.prayertime.PrayerTimeResponse;
 import com.dark.muslimspro.prayertime.RetrofitClient;
+import com.dark.muslimspro.tools.CircularProgressBar;
 import com.dark.muslimspro.tools.NetworkChangeReceiver;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -54,7 +56,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
-    private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text;
+    private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
     private FusedLocationProviderClient fusedLocationClient;
     private RequestQueue requestQueue;
     private SharedPreferences sharedPreferences;
@@ -68,13 +70,15 @@ public class MainActivity extends AppCompatActivity {
     private int currentPosition = 0;
     private Handler handler = new Handler();
 
-    private Timer scrollTimer;
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
     private int scrollPosition = 0;
     private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn;
 
+    private CircularProgressBar nextTimeToGoProgress;
     private double latitude,longitude;
+
+
 
 
     private Runnable runnable = new Runnable() {
@@ -107,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
         hijrimonth_text = findViewById(R.id.hijri_month);
         hijriyear_text = findViewById(R.id.hijri_year);
         current_prayer_time_name_Text = findViewById(R.id.current_prayer_time_name);
+        // Initialize UI elements
+        nextTimeToGoProgress = findViewById(R.id.next_time_to_go_progress);
+        fajrTime = findViewById(R.id.fajr);
+        dhuhrTime = findViewById(R.id.dhuhr);
+        asrTime = findViewById(R.id.asr);
+        maghribTime = findViewById(R.id.maghrib);
+        ishaTime = findViewById(R.id.isha);
+
 
 
         // Find the MaterialCardView with ID "tasbih"
@@ -117,26 +129,28 @@ public class MainActivity extends AppCompatActivity {
         namesbtn =  findViewById(R.id.namesbtn);
 
 
-
-
-
-
         requestQueue = Volley.newRequestQueue(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         sharedPreferences = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
 
-        // Initialize RecyclerView and adapter
-        recyclerView = findViewById(R.id.recyclerView);
-        prayerTimes = new ArrayList<>();
-        adapter = new PrayerTimeAdapter(prayerTimes);
 
-        // Set the RecyclerView's layout manager and adapter
-        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
 
         // Initialize the NetworkChangeReceiver
         networkChangeReceiver = new NetworkChangeReceiver(this);
+
+
+
+
+
+        //bangla added
+        // Inside your onCreate method or where you want to update the Bangla date
+        String banglaDate = pickBanglaDate();
+
+        // Find the TextView for the Bangla date
+        TextView banglaDateTextView = findViewById(R.id.bangla_days); // Replace with your TextView's ID
+
+        // Update the TextView with the calculated Bangla date
+        banglaDateTextView.setText(banglaDate);
 
 
 
@@ -209,57 +223,10 @@ public class MainActivity extends AppCompatActivity {
         // If there is no network connection, retrieve data from SharedPreferences
         retrieveDataFromSharedPreferences();
 
-        // Start the continuous scrolling animation
-        startContinuousScrolling();
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    // User has finished scrolling, restart the animation
-                    if (!isAnimationRunning) {
-                        startContinuousScrolling();
-                        isAnimationRunning = true;
-                    }
-                }
-            }
-        });
     }
 
-    // Override the onPause method to stop the animation when the activity is paused
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopContinuousScrolling();
-    }
 
-    // Add this method to start continuous scrolling
-    private void startContinuousScrolling() {
-        if (isAnimationRunning) {
-            scrollPosition = 0; // Start from the first item (item0)
-            scrollTimer = new Timer();
-            scrollTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(() -> {
-                        scrollPosition = (scrollPosition + 1) % layoutManager.getItemCount();
-                        recyclerView.smoothScrollToPosition(scrollPosition);
-                    });
-                }
-            }, 0, 4000); // Scroll every 4 seconds
-        }
-    }
 
-    // Add this method to stop the continuous scrolling
-    private void stopContinuousScrolling() {
-        if (scrollTimer != null) {
-            scrollTimer.cancel();
-            scrollTimer.purge();
-        }
-        isAnimationRunning = false;
-    }
 
     public void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -284,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-
     private void fetchLocationAndPrayerTimeData(double latitude, double longitude) {
         // Fetch prayer time data using RetrofitClient and update UI
         RetrofitClient.getClient().create(PrayerTimeApiService.class)
@@ -300,6 +266,12 @@ public class MainActivity extends AppCompatActivity {
                             String hijri_month = prayerTimeResponse.getData().getDate().getHijri().getMonth().getEn();
                             String hijri_year = prayerTimeResponse.getData().getDate().getHijri().getYear();
 
+                            String fajr = prayerTimeResponse.getData().getTimings().getFajr();
+                            String dhuhr = prayerTimeResponse.getData().getTimings().getDhuhr();
+                            String asr = prayerTimeResponse.getData().getTimings().getAsr();
+                            String magrib = prayerTimeResponse.getData().getTimings().getMaghrib();
+                            String isha = prayerTimeResponse.getData().getTimings().getIsha();
+
                             String[] hijri_holiday = prayerTimeResponse.getData().getDate().getHijri().getHolidays();
 
                             if (hijri_holiday != null && hijri_holiday.length > 0) {
@@ -312,25 +284,22 @@ public class MainActivity extends AppCompatActivity {
                             // Update the sunrise and sunset TextViews
                             sunriseText.setText(convertTo12HourFormat(sunriseTime));
                             sunsetText.setText(convertTo12HourFormat(sunsetTime));
-                            hidate_text.setText(hijri_date  + " - " + 1);
+                            hidate_text.setText(hijri_date + " - " + 1);
                             hijrimonth_text.setText(" " + hijri_month);
                             hijriyear_text.setText(" " + hijri_year);
+
+                            fajrTime.setText(convertTo12HourFormat(fajr));
+                            dhuhrTime.setText(convertTo12HourFormat(dhuhr));
+                            asrTime.setText(convertTo12HourFormat(asr));
+                            maghribTime.setText(convertTo12HourFormat(magrib));
+                            ishaTime.setText(convertTo12HourFormat(isha));
+
 
                             // Calculate and display current and upcoming prayer times
                             calculateAndDisplayPrayerTimes(prayerTimeResponse);
 
                             // Save the data to SharedPreferences
                             saveDataToSharedPreferences(sunriseTime, sunsetTime, hijri_date, hijri_month, hijri_year, hijri_holiday);
-
-                            // Calculate and add prayer times to the list
-                            List<PrayerTimeModel> prayerTimeList = calculatePrayerTimes(prayerTimeResponse);
-
-                            // Clear the existing list and add the new prayer times
-                            prayerTimes.clear();
-                            prayerTimes.addAll(prayerTimeList);
-
-                            // Notify the adapter that the data has changed
-                            adapter.notifyDataSetChanged();
                         } else {
                             Toast.makeText(MainActivity.this, "Failed to fetch prayer times", Toast.LENGTH_SHORT).show();
                         }
@@ -342,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
         List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
@@ -559,7 +529,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Add this method to start the countdown timer
-    // Add this method to start the countdown timer
     private void startCountdownTimer(long milliseconds) {
         CountDownTimer timer = new CountDownTimer(milliseconds, 1000) {
             @Override
@@ -569,6 +538,11 @@ public class MainActivity extends AppCompatActivity {
                 long hours = secondsRemaining / 3600;
                 long minutes = (secondsRemaining % 3600) / 60;
                 long seconds = secondsRemaining % 60;
+
+                int progress = (int) ((millisUntilFinished / 1000) / 60); // Convert to minutes
+
+
+                nextTimeToGoProgress.setProgress(progress);
 
                 String timeRemaining = String.format(Locale.getDefault(), "%02d Hours %02d Minutes %02d Seconds", hours, minutes, seconds);
                 nextPrayerTimeToGo.setText(timeRemaining);
@@ -581,5 +555,250 @@ public class MainActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
+
+
+
+    // bangla calander
+
+    private String convertToBanglaNumber(String input) {
+        String[] numbers = {"০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"};
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            char ch = input.charAt(i);
+            if (ch >= '0' && ch <= '9') {
+                result.append(numbers[ch - '0']);
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
+    }
+
+    private String pickBanglaDate() {
+
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("MMMM");
+        String strMonth = formatter.format(date);
+
+        String Month = "", banglaNumber = "";
+        int banglaDay = 1, i, dayNumber = 1, banglaYear;
+        banglaYear = year - 593;
+
+        if (strMonth.equals("April") && day <= 13) {
+            Month = getString(R.string.april); //চৈত্র
+            banglaYear = banglaYear - 1;
+            dayNumber = 1;
+            banglaDay = 14;
+            for (i = dayNumber; i > day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("April") && day > 13) {
+            Month = getString(R.string.boishakh); //বৈশাখ
+            dayNumber = 14;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("May") && day <= 14) {
+            Month = getString(R.string.boishakh2); //বৈশাখ
+            dayNumber = 1;
+            banglaDay = 15;
+            for (i = dayNumber; i > day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("May") && day > 14) {
+            Month = getString(R.string.jaistho); //জৈষ্ঠ্য
+            dayNumber = 15;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("June") && day <= 14) {
+            Month = getString(R.string.jaistho2); //জৈষ্ঠ্য
+            dayNumber = 1;
+            banglaDay = 15;
+            for (i = dayNumber; i > day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("June") && day > 14) {
+            Month = getString(R.string.ashar); //আষাঢ়
+            dayNumber = 15;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("July") && day <= 15) {
+
+            Month = getString(R.string.ashar2); //আষাঢ়
+            dayNumber = 1;
+            banglaDay = 16;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + day;
+            }
+
+        } else if (strMonth.equals("July") && day > 15) {
+            Month = getString(R.string.srabon); //শ্রাবণ
+            dayNumber = 16;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("August") && day <= 15) {
+            dayNumber = 1;
+            banglaDay = 16;
+            Month = getString(R.string.srabon2); //শ্রাবণ
+
+            for (i = dayNumber; i <= day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("August") && day > 15) {
+            dayNumber = 16;
+            banglaDay = 1;
+            Month = getString(R.string.vadro); //ভাদ্র
+
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("September") && day <= 15) {
+            Month = getString(R.string.vadro2); //ভাদ্র
+            dayNumber = 1;
+            banglaDay = 16;
+
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("September") && day > 15) {
+            Month = getString(R.string.ashwin); //আশ্বিন
+            dayNumber = 16;
+            banglaDay = 1;
+
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("October") && day <= 16) {
+            Month = getString(R.string.ashwin2); //আশ্বিন
+
+            dayNumber = 1;
+            banglaDay = 17;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("October") && day > 16) {
+            Month = getString(R.string.kartik); //কার্ত্তিক
+            dayNumber = 17;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("November") && day <= 15) {
+            Month = getString(R.string.kartik2); //কার্ত্তিক
+            dayNumber = 1;
+            banglaDay = 16;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+
+        } else if (strMonth.equals("November") && day > 15) {
+            Month = getString(R.string.agun); //অগ্রহায়ণ
+            dayNumber = 16;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("December") && day <= 15) {
+
+            Month = getString(R.string.agun2); //অগ্রহায়ণ
+            dayNumber = 1;
+            banglaDay = 16;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("December") && day > 15) {
+            Month = getString(R.string.poush); //পৌষ
+            dayNumber = 16;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("January") && day <= 14) {
+            Month = getString(R.string.poush2); //পৌষ
+            banglaYear = banglaYear - 1;
+            dayNumber = 1;
+            banglaDay = 17; //for 15
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("January") && day > 14) {
+            Month = getString(R.string.magh); //মাঘ
+            banglaYear = banglaYear - 1;
+            dayNumber = 15;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("February") && day <= 13) {
+            Month = getString(R.string.magh2); //মাঘ
+            banglaYear = banglaYear - 1;
+            dayNumber = 1;
+            banglaDay = 14;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+
+            }
+        } else if (strMonth.equals("February") && day > 13) {
+            Month = getString(R.string.falgun); //ফাল্গুন
+            banglaYear = banglaYear - 1;
+            dayNumber = 14;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        } else if (strMonth.equals("March") && day <= 14) {
+            Month = getString(R.string.falgun2); //ফাল্গুন
+            banglaYear = banglaYear - 1;
+            dayNumber = 1;
+            banglaDay = 15;
+
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+                if (((year % 400 == 0) || (year % 100 != 0) && (year % 4 == 00))) {
+                    if (banglaDay > 30) {
+                        banglaDay = 1;
+                        break;
+                    }
+                } else {
+                    if (banglaDay > 29) {
+                        banglaDay = 1;
+                        break;
+                    }
+                }
+
+            }
+
+        } else if (strMonth.equals("March") && day > 14) {
+            Month = getString(R.string.choitro); //চৈত্র
+            banglaYear = banglaYear - 1;
+            dayNumber = 15;
+            banglaDay = 1;
+            for (i = dayNumber; i < day; i++) {
+                banglaDay = banglaDay + 1;
+            }
+        }
+
+        return ((convertToBanglaNumber(String.valueOf(banglaDay))) + " " + Month + " " + (convertToBanglaNumber(String.valueOf(banglaYear))));
+    }
+
 
 }

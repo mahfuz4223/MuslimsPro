@@ -26,4 +26,38 @@
     </string-array>
 
 
+    <string name="day" translatable="false">আজ </string>
+    <string name="sat" translatable="false">শনিবার</string>
+    <string name="sun" translatable="false">রবিবার</string>
+    <string name="mon" translatable="false">সোমবার</string>
+    <string name="tue" translatable="false">মঙ্গলবার</string>
+    <string name="wed" translatable="false">বুধবার</string>
+    <string name="thu" translatable="false">বৃহস্পতিবার</string>
+    <string name="fri" translatable="false">শুক্রবার</string>
+    <string name="april" translatable="false">এপ্রিল</string>
+    <string name="boishakh" translatable="false">বৈশাখ</string>
+    <string name="boishakh2" translatable="false">বৈশাখ</string>
+    <string name="jaistho" translatable="false">জৈষ্ঠ্য</string>
+    <string name="jaistho2" translatable="false">জৈষ্ঠ্য</string>
+    <string name="ashar" translatable="false">আষাঢ়</string>
+    <string name="ashar2" translatable="false">আষাঢ়</string>
+    <string name="srabon" translatable="false">শ্রাবণ</string>
+    <string name="srabon2" translatable="false">শ্রাবণ</string>
+    <string name="vadro" translatable="false">ভাদ্র</string>
+    <string name="vadro2" translatable="false">ভাদ্র</string>
+    <string name="ashwin" translatable="false">আশ্বিন</string>
+    <string name="ashwin2" translatable="false">আশ্বিন</string>
+    <string name="kartik" translatable="false">কার্তিক</string>
+    <string name="kartik2" translatable="false">কার্তিক</string>
+    <string name="agun" translatable="false">অগ্রহায়ণ</string>
+    <string name="agun2" translatable="false">অগ্রহায়ণ</string>
+    <string name="poush" translatable="false">পৌষ</string>
+    <string name="poush2" translatable="false">পৌষ</string>
+    <string name="magh" translatable="false">মাঘ</string>
+    <string name="magh2" translatable="false">মাঘ</string>
+    <string name="falgun" translatable="false">ফাল্গুন</string>
+    <string name="falgun2" translatable="false">ফাল্গুন</string>
+    <string name="choitro" translatable="false">চৈত্র</string>
+
+
 </resources>
