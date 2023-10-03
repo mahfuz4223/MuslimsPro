@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MuslimsPro</string>
 
+    <string name="compass_hands">Compass Hands</string>
     <string name="dhaka_bangladesh">Dhaka,Bangladesh</string>
     <string name="upcoming_prayer">UPCOMING PRAYER</string>
     <string name="Asr">Asr</string>

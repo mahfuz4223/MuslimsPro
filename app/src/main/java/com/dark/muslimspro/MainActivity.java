@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
     private int scrollPosition = 0;
-    private   MaterialCardView tasbihCardView, calanderView;
+    private   MaterialCardView tasbihCardView, calanderView, compassCardView;
 
     private double latitude,longitude;
 
@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         // Find the MaterialCardView with ID "tasbih"
         tasbihCardView = findViewById(R.id.tasbih);
         calanderView =  findViewById(R.id.calanderCard);
+        compassCardView =  findViewById(R.id.compassCard);
 
         requestQueue = Volley.newRequestQueue(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -154,6 +155,17 @@ public class MainActivity extends AppCompatActivity {
                 // Pass the latitude and longitude as extras
                 intent.putExtra("latitude", latitude);
                 intent.putExtra("longitude", longitude);
+
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
+
+        compassCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the CalendarActivity
+                Intent intent = new Intent(MainActivity.this, QiblaActivity.class);
 
                 // Start the new activity
                 startActivity(intent);
