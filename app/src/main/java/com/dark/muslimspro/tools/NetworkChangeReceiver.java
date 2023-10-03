@@ -1,10 +1,12 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.tools;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import com.dark.muslimspro.MainActivity;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 

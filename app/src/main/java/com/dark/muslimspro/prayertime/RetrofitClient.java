@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.prayertime;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

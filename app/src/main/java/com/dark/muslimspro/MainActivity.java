@@ -1,10 +1,8 @@
 package com.dark.muslimspro;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -27,6 +25,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.dark.muslimspro.calander.CalendarActivity;
+import com.dark.muslimspro.prayertime.PrayerTimeAdapter;
+import com.dark.muslimspro.prayertime.PrayerTimeApiService;
+import com.dark.muslimspro.prayertime.PrayerTimeModel;
+import com.dark.muslimspro.prayertime.PrayerTimeResponse;
+import com.dark.muslimspro.prayertime.RetrofitClient;
+import com.dark.muslimspro.tools.NetworkChangeReceiver;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.card.MaterialCardView;
@@ -66,7 +71,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
     private int scrollPosition = 0;
-    private   MaterialCardView tasbihCardView;
+    private   MaterialCardView tasbihCardView, calanderView;
+
+    private double latitude,longitude;
+
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -102,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Find the MaterialCardView with ID "tasbih"
         tasbihCardView = findViewById(R.id.tasbih);
+        calanderView =  findViewById(R.id.calanderCard);
 
         requestQueue = Volley.newRequestQueue(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -135,6 +144,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        calanderView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the CalendarActivity
+                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+
+                // Pass the latitude and longitude as extras
+                intent.putExtra("latitude", latitude);
+                intent.putExtra("longitude", longitude);
+
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
+
+
 
 
 
@@ -212,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
 
                         // Fetch and update location text
                         String address = getAddressFromCoordinates(this, latitude, longitude);
@@ -226,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void fetchLocationAndPrayerTimeData(double latitude, double longitude) {
         // Fetch prayer time data using RetrofitClient and update UI

@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.prayertime;
 
 import java.util.Map;
 

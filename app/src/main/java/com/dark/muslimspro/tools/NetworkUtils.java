@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.tools;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

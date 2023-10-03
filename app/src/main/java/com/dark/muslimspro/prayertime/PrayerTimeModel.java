@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.prayertime;
 
 public class PrayerTimeModel {
     private final String prayerName;

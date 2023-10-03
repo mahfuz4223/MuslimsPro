@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.prayertime;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.dark.muslimspro.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

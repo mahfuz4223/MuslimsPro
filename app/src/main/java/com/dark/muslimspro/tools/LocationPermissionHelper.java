@@ -1,4 +1,4 @@
-package com.dark.muslimspro;
+package com.dark.muslimspro.tools;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
