@@ -99,7 +99,7 @@
                 android:id="@+id/bangla_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="১৮ই আশ্বিন ১৪৩০ বঙ্গাব্দ, শরৎ-কাল"
+                android:text="১৮ই আশ্বিন ১৪৩০"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -159,7 +159,9 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        >
 
                         <TextView
                             android:id="@+id/upcoming_prayer_name"
@@ -175,8 +177,7 @@
                             android:id="@+id/upcoming_prayer_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="05dp"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="5dp"
                             android:maxLines="1"
                             android:text="00"
                             android:textColor="@color/white"
@@ -185,37 +186,6 @@
 
                     </LinearLayout>
 
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/next_prayer"
-                            android:textColor="@color/white"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/next_prayer_time_to_go"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="1 Hours 30 Minutes 30"
-                            android:textColor="@color/white"
-                            android:textSize="15sp"
-                            android:maxLines="1"
-                            android:textStyle="bold" />
-
-
-
-                    </LinearLayout>
 
 
 
@@ -360,18 +330,66 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="150dp"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:layout_weight="1">
 
-                    <!-- Progress color -->
-                    <com.dark.muslimspro.tools.CircularProgressBar
-                        android:id="@+id/next_time_to_go_progress"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_margin="15dp"
-                        android:progressTint="@color/purple_500"
-                        android:visibility="visible" />
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+
+                            <TextView
+                                android:id="@+id/next_prayer_time_to_go"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignStart="@+id/next_time_to_go_progress"
+                                android:layout_alignTop="@+id/next_time_to_go_progress"
+                                android:layout_alignEnd="@+id/next_time_to_go_progress"
+                                android:layout_alignBottom="@+id/next_time_to_go_progress"
+                                android:gravity="center"
+                                android:text="1:50:59"
+                                android:textColor="@android:color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                            <!-- Progress color -->
+                            <com.dark.muslimspro.tools.CircularProgressBar
+                                android:id="@+id/next_time_to_go_progress"
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:layout_marginStart="15dp"
+                                android:layout_marginTop="15dp"
+                                android:layout_marginEnd="15dp"
+                                android:layout_marginBottom="15dp"
+                                android:progressTint="@color/purple_500"
+                                android:visibility="visible" />
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/next_prayer_time_to_go"
+                                android:layout_alignEnd="@+id/next_prayer_time_to_go"
+                                android:layout_marginStart="08dp"
+                                android:layout_marginTop="-5dp"
+                                android:maxLines="1"
+                                android:text="@string/next_prayer"
+                                android:textColor="@color/purple_500"
+                                android:textSize="12sp"
+                                android:gravity="center"
+                                android:textStyle="bold" />
+
+
+                        </RelativeLayout>
+
+
+                    </LinearLayout>
 
                 </LinearLayout>
 

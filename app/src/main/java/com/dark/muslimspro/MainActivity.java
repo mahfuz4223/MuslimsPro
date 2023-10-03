@@ -56,6 +56,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
+    private static final long MAX_COUNTDOWN_TIME = 3600000;
+
     private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
     private FusedLocationProviderClient fusedLocationClient;
     private RequestQueue requestQueue;
@@ -281,10 +283,25 @@ public class MainActivity extends AppCompatActivity {
                                 hijri_holidays.setVisibility(View.GONE);
                             }
 
+
+                            // Convert hijri_date to an integer and subtract 1
+                            try {
+                                int hijriDay = Integer.parseInt(hijri_date);
+                                hijriDay--; // Subtract 1 from the Hijri day
+                                hijri_date = String.valueOf(hijriDay); // Convert it back to a string
+                            } catch (NumberFormatException e) {
+                                // Handle the case where hijri_date is not a valid integer
+                                e.printStackTrace();
+                            }
+
+                            hidate_text.setText(hijri_date);
+
+
+
                             // Update the sunrise and sunset TextViews
                             sunriseText.setText(convertTo12HourFormat(sunriseTime));
                             sunsetText.setText(convertTo12HourFormat(sunsetTime));
-                            hidate_text.setText(hijri_date + " - " + 1);
+//                            hidate_text.setText(hijri_date);
                             hijrimonth_text.setText(" " + hijri_month);
                             hijriyear_text.setText(" " + hijri_year);
 
@@ -313,6 +330,66 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+//    private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
+//        List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
+//
+//        // Get the current time
+//        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+//        String currentTime = sdf.format(new Date());
+//
+//        // Find the current and upcoming prayer times
+//        PrayerTimeModel currentPrayer = null;
+//        PrayerTimeModel upcomingPrayer = null;
+//
+//        for (PrayerTimeModel prayer : prayerTimes) {
+//            String prayerTime = prayer.getStartTime();
+//
+//            // Compare the current time with each prayer time
+//            try {
+//                Date current = sdf.parse(currentTime);
+//                Date prayerTimeDate = sdf.parse(prayerTime);
+//
+//                if (current.before(prayerTimeDate)) {
+//                    if (prayer.getPrayerName().equals("Lastthird")) {
+//                        upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
+//                    } else {
+//                        upcomingPrayer = prayer;
+//                    }
+//                    break;
+//                } else {
+//                    currentPrayer = prayer;
+//                }
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        // Display the current and upcoming prayer times
+//        if (currentPrayer != null && upcomingPrayer != null) {
+//            String currentTimes = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()); // Get the current time
+//
+//            String upcomingPrayerTime = upcomingPrayer.getStartTime();
+//
+//            long timeRemaining = getTimeDifference(currentTimes, upcomingPrayerTime);
+//
+//            if (timeRemaining > 0) {
+//                // Start the countdown timer
+//                startCountdownTimer(timeRemaining);
+//            } else {
+//                nextPrayerTimeToGo.setText("Prayer time has passed");
+//            }
+//
+//            current_prayer_time_name_Text.setText(currentPrayer.getPrayerName());
+//            upcoming_prayer_name.setText(upcomingPrayer.getPrayerName());
+//            next_prayer_time.setText(convertTo12HourFormat(upcomingPrayerTime));
+//        } else {
+//            current_prayer_time_name_Text.setText("No prayer");
+//            upcoming_prayer_name.setText("No prayer");
+//            next_prayer_time.setText("");
+//        }
+//    }
+
+
     private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
         List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
 
@@ -324,7 +401,8 @@ public class MainActivity extends AppCompatActivity {
         PrayerTimeModel currentPrayer = null;
         PrayerTimeModel upcomingPrayer = null;
 
-        for (PrayerTimeModel prayer : prayerTimes) {
+        for (int i = 0; i < prayerTimes.size(); i++) {
+            PrayerTimeModel prayer = prayerTimes.get(i);
             String prayerTime = prayer.getStartTime();
 
             // Compare the current time with each prayer time
@@ -333,14 +411,14 @@ public class MainActivity extends AppCompatActivity {
                 Date prayerTimeDate = sdf.parse(prayerTime);
 
                 if (current.before(prayerTimeDate)) {
-                    if (prayer.getPrayerName().equals("Lastthird")) {
-                        upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
+                    upcomingPrayer = prayer;
+                    if (upcomingPrayer.getPrayerName().equals("Fajr")) {
+                        // Set the current prayer to "Lastthird" if the upcoming prayer is "Fajr"
+                        currentPrayer = prayerTimes.get(i > 0 ? i - 1 : prayerTimes.size() - 1);
                     } else {
-                        upcomingPrayer = prayer;
+                        currentPrayer = prayerTimes.get(i > 0 ? i - 1 : prayerTimes.size() - 1);
                     }
                     break;
-                } else {
-                    currentPrayer = prayer;
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -349,18 +427,30 @@ public class MainActivity extends AppCompatActivity {
 
         // Display the current and upcoming prayer times
         if (currentPrayer != null && upcomingPrayer != null) {
-            String currentTimes = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()); // Get the current time
+            String currentTimes = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
 
             String upcomingPrayerTime = upcomingPrayer.getStartTime();
 
             long timeRemaining = getTimeDifference(currentTimes, upcomingPrayerTime);
 
             if (timeRemaining > 0) {
+                // Calculate progress based on the time remaining
+                int maxProgress = 100; // Maximum progress value
+                int progress = (int) ((timeRemaining / (float) MAX_COUNTDOWN_TIME) * maxProgress);
+
+                // Set the progress for nextTimeToGoProgress
+                nextTimeToGoProgress.setProgress(progress);
+
                 // Start the countdown timer
                 startCountdownTimer(timeRemaining);
             } else {
+                // Set the progress to 100% if the prayer time has passed
+                nextTimeToGoProgress.setProgress(100);
                 nextPrayerTimeToGo.setText("Prayer time has passed");
             }
+
+            // Set the upcoming prayer time to the CircularProgressBar
+            nextPrayerTimeToGo.setText(upcomingPrayerTime);
 
             current_prayer_time_name_Text.setText(currentPrayer.getPrayerName());
             upcoming_prayer_name.setText(upcomingPrayer.getPrayerName());
@@ -369,9 +459,10 @@ public class MainActivity extends AppCompatActivity {
             current_prayer_time_name_Text.setText("No prayer");
             upcoming_prayer_name.setText("No prayer");
             next_prayer_time.setText("");
+            // Set the progress to 0 if there is no upcoming prayer
+            nextTimeToGoProgress.setProgress(0);
         }
     }
-
 
 
 
@@ -539,13 +630,12 @@ public class MainActivity extends AppCompatActivity {
                 long minutes = (secondsRemaining % 3600) / 60;
                 long seconds = secondsRemaining % 60;
 
-                int progress = (int) ((millisUntilFinished / 1000) / 60); // Convert to minutes
+                String timeRemaining = String.format(Locale.getDefault(), "%02d : %02d : %02d ", hours, minutes, seconds);
 
-
-                nextTimeToGoProgress.setProgress(progress);
-
-                String timeRemaining = String.format(Locale.getDefault(), "%02d Hours %02d Minutes %02d Seconds", hours, minutes, seconds);
+                // Update both the TextView and CircularProgressBar
                 nextPrayerTimeToGo.setText(timeRemaining);
+                int progress = (int) ((millisUntilFinished / (float) MAX_COUNTDOWN_TIME) * 100);
+                nextTimeToGoProgress.setProgress(progress);
             }
 
             @Override
@@ -555,6 +645,8 @@ public class MainActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
+
 
 
 
@@ -797,7 +889,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        return ((convertToBanglaNumber(String.valueOf(banglaDay))) + " " + Month + " " + (convertToBanglaNumber(String.valueOf(banglaYear))));
+        return ((convertToBanglaNumber(String.valueOf(banglaDay - 1))) + " " + Month + " " + (convertToBanglaNumber(String.valueOf(banglaYear))));
     }
 
 
