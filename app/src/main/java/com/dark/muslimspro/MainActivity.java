@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.dark.muslimspro.AllahNames.AllahAr99NamAndFojilotMainActivity;
 import com.dark.muslimspro.calander.CalendarActivity;
 import com.dark.muslimspro.prayertime.PrayerTimeAdapter;
 import com.dark.muslimspro.prayertime.PrayerTimeApiService;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
     private int scrollPosition = 0;
-    private   MaterialCardView tasbihCardView, calanderView, compassCardView;
+    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn;
 
     private double latitude,longitude;
 
@@ -112,6 +113,13 @@ public class MainActivity extends AppCompatActivity {
         tasbihCardView = findViewById(R.id.tasbih);
         calanderView =  findViewById(R.id.calanderCard);
         compassCardView =  findViewById(R.id.compassCard);
+
+        namesbtn =  findViewById(R.id.namesbtn);
+
+
+
+
+
 
         requestQueue = Volley.newRequestQueue(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -166,6 +174,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Create an Intent to navigate to the CalendarActivity
                 Intent intent = new Intent(MainActivity.this, QiblaActivity.class);
+
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
+
+        namesbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the CalendarActivity
+                Intent intent = new Intent(MainActivity.this, AllahAr99NamAndFojilotMainActivity.class);
 
                 // Start the new activity
                 startActivity(intent);

@@ -3,20 +3,30 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_allah.xml" value="0.1915" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_mosque_a.xml" value="0.1915" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_mosque_b.xml" value="0.1915" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_quran.xml" value="0.1915" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_quranb.xml" value="0.1915" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_sound_waves.xml" value="0.172" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_sun_set.xml" value="0.2155" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/drawable/ic_tasbih_2.xml" value="0.1915" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/font-v26/font_family.xml" value="0.16822916666666668" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/font/font_family.xml" value="0.16927083333333334" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_allah_ar99_nam_and_fojilot_main.xml" value="0.2887179487179487" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_allah_main.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_calander.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_calendar.xml" value="0.2921875" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_hadith.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_names.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_qibla.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_settings.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/activity_tasbih.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/allpayertime.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/layout/calandersview.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.25" />
+        <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/menu/top_app_bar.xml" value="0.29322916666666665" />
         <entry key="..\:/AndroidStudioProjects/MuslimsPro/app/src/main/res/xml/network_security_config.xml" value="0.1390625" />
       </map>
     </option>
