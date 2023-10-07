@@ -21,9 +21,6 @@
         android:theme="@style/Theme.MuslimsPro"
         tools:targetApi="31">
         <activity
-            android:name=".calander.CalendarActivity"
-            android:exported="false" />
-        <activity
             android:name=".TasbihActivity"
             android:exported="false" />
         <activity
@@ -34,6 +31,9 @@
             android:exported="false" />
         <activity
             android:name=".AllahNames.AllahMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".calander.CalendarActivity"
             android:exported="false" />
         <activity
             android:name=".QiblaActivity"

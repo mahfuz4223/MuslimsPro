@@ -345,6 +345,7 @@
                             android:layout_height="wrap_content">
 
 
+                            <!-- Progress color -->
                             <TextView
                                 android:id="@+id/next_prayer_time_to_go"
                                 android:layout_width="wrap_content"
@@ -353,12 +354,16 @@
                                 android:layout_alignTop="@+id/next_time_to_go_progress"
                                 android:layout_alignEnd="@+id/next_time_to_go_progress"
                                 android:layout_alignBottom="@+id/next_time_to_go_progress"
+                                android:layout_marginStart="1dp"
+                                android:layout_marginTop="-1dp"
+                                android:layout_marginEnd="-1dp"
+                                android:layout_marginBottom="1dp"
                                 android:gravity="center"
                                 android:text="1:50:59"
                                 android:textColor="@android:color/black"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
-                            <!-- Progress color -->
+
                             <com.dark.muslimspro.tools.CircularProgressBar
                                 android:id="@+id/next_time_to_go_progress"
                                 android:layout_width="120dp"
@@ -433,6 +438,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_weight="1"
+                            android:weightSum="2"
                             android:gravity="right">
 
                             <TextView
@@ -442,7 +448,17 @@
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                android:layout_marginRight="25dp"
+                                android:layout_marginRight="15dp"
+                                />
+
+                            <TextView
+                                android:id="@+id/fajr_end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_00_00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                android:layout_marginRight="15dp"
                                 />
                         </LinearLayout>
 
@@ -482,16 +498,28 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_weight="1"
+                            android:weightSum="2"
                             android:gravity="right">
 
                             <TextView
                                 android:id="@+id/dhuhr"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
+                                android:text="@string/_00_00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/dhuhr_end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                android:layout_marginRight="25dp"/>
+                                android:layout_marginRight="15dp"/>
+
+
                         </LinearLayout>
 
 
@@ -530,6 +558,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_weight="1"
+                            android:weightSum="2"
                             android:gravity="right">
 
                             <TextView
@@ -539,7 +568,16 @@
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                android:layout_marginRight="25dp"/>
+                                android:layout_marginRight="15dp"/>
+
+                            <TextView
+                                android:id="@+id/asr_end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_00_00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                android:layout_marginRight="15dp"/>
                         </LinearLayout>
 
 
@@ -567,6 +605,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
                                 android:text="Maghrib"
+                                android:textSize="12sp"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -578,6 +617,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_weight="1"
+                            android:weightSum="2"
                             android:gravity="right">
 
                             <TextView
@@ -587,7 +627,17 @@
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                android:layout_marginRight="25dp"
+                                android:layout_marginRight="15dp"
+                                />
+
+                            <TextView
+                                android:id="@+id/maghrib_end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_00_00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                android:layout_marginRight="15dp"
                                 />
                         </LinearLayout>
 
@@ -626,6 +676,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_weight="1"
+                            android:weightSum="2"
                             android:gravity="right">
 
                             <TextView
@@ -635,7 +686,16 @@
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                android:layout_marginRight="25dp"/>
+                                android:layout_marginRight="15dp"/>
+
+                            <TextView
+                                android:id="@+id/isha_end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_00_00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                android:layout_marginRight="15dp"/>
                         </LinearLayout>
 
 
