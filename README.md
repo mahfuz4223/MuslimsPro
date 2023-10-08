@@ -1,37 +1,40 @@
-# MuslimsPro - Islamic Prayer Time App
+# MuslimsPro - Islamic Prayer and Resource App
 
-MuslimsPro is an Android application that provides accurate prayer times, Islamic holidays, and Qibla direction for Muslims around the world. This open-source app is designed to help users efficiently manage their daily prayers and stay informed about important Islamic events and occasions.
+Welcome to **MuslimsPro**, your comprehensive Islamic Prayer and Resource App designed to elevate your spiritual practices and provide invaluable resources for Muslims worldwide.
 
 ## Key Features
-1. Accurate Prayer Times: Get precise prayer times for your location, including Fajr, Dhuhr, Asr, Maghrib, and Isha.
 
-2. Islamic Holidays: Stay updated with Islamic holidays and special occasions, including their significance and importance.
+- 🕌 **Prayer Times and Qibla Direction:** Accurate prayer times and Qibla direction based on your location, ensuring you never miss a prayer.
 
-3. Qibla Direction: Find the direction of the Kaaba in Mecca (Qibla) to perform your prayers accurately, no matter where you are.
+- 📅 **Hijri Calendar:** Stay informed about Islamic events and important dates with the Hijri calendar, helping you plan your religious activities and celebrations.
 
-4. Countdown Timer: A countdown timer that informs you about the time remaining for the next prayer, ensuring you never miss your Salah.
+- 📿 **Tasbih Counter:** Simplify your dhikr (remembrance of Allah) with the built-in Tasbih counter, making it easy to keep track of your recitations.
 
- 5. Location-Based: The app uses your device's GPS to automatically determine your location and fetch relevant prayer times.
+- 📖 **Quranic Resources:** Explore a collection of Quranic resources, including a list of all Surahs (chapters) and Allah's 99 names, right at your fingertips.
 
-6. Offline Mode: Access prayer times and Islamic holiday information even when you are not connected to the internet, as the data is stored locally.
+- 🕌 **Mosque Finder:** Locate nearby mosques and Islamic centers, making it convenient to find a place for congregational prayers and community events.
 
-## Technologies Used
-1. Android: The app is built for the Android platform using Java and the Android SDK.
+- 📜 **Namaz Shikkha (Prayer Tutorial):** Get step-by-step guidance on performing Islamic prayers correctly, ensuring your devotion is in accordance with Islamic traditions.
 
-2. Retrofit: Retrofit is used for making network requests to fetch accurate prayer time and holiday data.
+- 📜 **Rakat Table:** Access a table detailing the number of Rakats (units) for each prayer, aiding you in performing the correct number of prostrations.
 
-3. Google Location Services: The app utilizes the FusedLocationProviderClient from Google's Location Services to determine the user's location.
+- 📆 **Islamic Calendar:** Stay updated with Islamic holidays, allowing you to plan religious activities and observances throughout the year.
 
-4. RecyclerView: The RecyclerView is used to display a list of prayer times in an efficient and user-friendly manner.
+- 🕋 **Qibla Locator:** Easily determine the direction of the Kaaba in Mecca (Qibla), so you can pray in the right direction, wherever you are.
 
-5. CountDownTimer: A custom Countdown Timer is implemented to display the time remaining for the next prayer.
+## Download
+
+Download this app to strengthen your connection with Islam, simplify your daily rituals, and deepen your understanding of Islamic teachings. Join us in fostering a community of faithful individuals dedicated to their spiritual journey.
+
+Contributions and feedback are welcome. Let's work together to improve this app and provide a valuable resource for Muslims worldwide.
 
 
 ## License
-**This project is licensed under the MIT License - see the LICENSE file for details.**
 
-Contact
-For any questions, issues, or feedback, please feel free to contact the project maintainers:
+This project is open-source and licensed under the MIT License. Please refer to the LICENSE file for more details.
 
+## Contact
 
-We hope this app serves as a valuable tool for Muslims to fulfill their daily prayer obligations and stay connected with their faith. Thank you for contributing to MuslimsPro!
+For any questions, issues, or feedback, don't hesitate to reach out to the project maintainers:
+
+We believe that **MuslimsPro** is a valuable tool for Muslims to fulfill their daily prayer obligations, deepen their faith, and stay connected with their spiritual journey. Thank you for contributing to the **MuslimsPro** community!
