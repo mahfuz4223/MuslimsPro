@@ -65,16 +65,14 @@ public class CalendarActivity extends AppCompatActivity {
 
         double latitude = getIntent().getDoubleExtra("latitude", 0.0); // Provide a default value
         double longitude = getIntent().getDoubleExtra("longitude", 0.0);
-        String selectedMethod = getIntent().getStringExtra("selectedMethod");
-// Provide a default value
+        selectedMethod = getIntent().getStringExtra("selectedMethod");
 
-        fetchPrayerTimes(latitude, longitude,selectedMethod);
+        fetchPrayerTimes(latitude, longitude, selectedMethod);
 
         setupSpinners();
 
         // Fetch location and set it to locationText
         fetchLocation(latitude, longitude);
-
     }
 
     private void setupSpinners() {
@@ -84,7 +82,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         List<String> years = new ArrayList<>();
         int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int i = thisYear; i >= thisYear - 10; i--) {
+        for (int i = thisYear; i <= thisYear + 10; i++) {
             years.add(Integer.toString(i));
         }
 
@@ -116,7 +114,7 @@ public class CalendarActivity extends AppCompatActivity {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                selectedYear = thisYear - position;
+                selectedYear = thisYear + position;
                 double latitude = getIntent().getDoubleExtra("latitude", 0.0); // Provide a default value
                 double longitude = getIntent().getDoubleExtra("longitude", 0.0); // Provide a default value
 
@@ -131,7 +129,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     public void fetchPrayerTimes(double latitude, double longitude, String selectedMethod) {
-        String url = "https://api.aladhan.com/v1/calendar/" + selectedYear + "?latitude=" + latitude + "&longitude=" + longitude + "&method="+selectedMethod;
+        String url = "https://api.aladhan.com/v1/calendar/" + selectedYear + "?latitude=" + latitude + "&longitude=" + longitude + "&method=" + selectedMethod;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -154,14 +152,12 @@ public class CalendarActivity extends AppCompatActivity {
                                 String maghrib = convertTo12HourFormat(timingsObject.getString("Maghrib").split(" ")[0]);
                                 String isha = convertTo12HourFormat(timingsObject.getString("Isha").split(" ")[0]);
 
-
                                 // Extracting Hijri date
                                 JSONObject hijriObject = dateObject.getJSONObject("hijri");
                                 String hijriDay = hijriObject.getString("day");
                                 JSONObject hijriMonthObject = hijriObject.getJSONObject("month");
                                 String hijriMonthEn = hijriMonthObject.getString("en");
                                 String hijriYear = hijriObject.getString("year");
-
 
                                 PrayerTime prayerTime = new PrayerTime(date, fajr, dhuhr, asr, maghrib, isha, hijriDay, hijriMonthEn, hijriYear);
                                 prayerTimesList.add(prayerTime);
