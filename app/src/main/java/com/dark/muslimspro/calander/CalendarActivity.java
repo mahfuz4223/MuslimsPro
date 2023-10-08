@@ -27,10 +27,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class CalendarActivity extends AppCompatActivity {
 
@@ -68,6 +71,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         // Fetch location and set it to locationText
         fetchLocation(latitude, longitude);
+
     }
 
     private void setupSpinners() {
@@ -140,11 +144,13 @@ public class CalendarActivity extends AppCompatActivity {
                                 JSONObject dateObject = dayObject.getJSONObject("date");
                                 String date = dateObject.getString("readable");
                                 JSONObject timingsObject = dayObject.getJSONObject("timings");
-                                String fajr = timingsObject.getString("Fajr");
-                                String dhuhr = timingsObject.getString("Dhuhr");
-                                String asr = timingsObject.getString("Asr");
-                                String maghrib = timingsObject.getString("Maghrib");
-                                String isha = timingsObject.getString("Isha");
+
+                                String fajr = convertTo12HourFormat(timingsObject.getString("Fajr").split(" ")[0]);
+                                String dhuhr = convertTo12HourFormat(timingsObject.getString("Dhuhr").split(" ")[0]);
+                                String asr = convertTo12HourFormat(timingsObject.getString("Asr").split(" ")[0]);
+                                String maghrib = convertTo12HourFormat(timingsObject.getString("Maghrib").split(" ")[0]);
+                                String isha = convertTo12HourFormat(timingsObject.getString("Isha").split(" ")[0]);
+
 
                                 PrayerTime prayerTime = new PrayerTime(date, fajr, dhuhr, asr, maghrib, isha);
                                 prayerTimesList.add(prayerTime);
@@ -168,6 +174,8 @@ public class CalendarActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(jsonObjectRequest);
     }
+
+
 
     private void scrollToCurrentDate() {
         Calendar cal = Calendar.getInstance();
@@ -203,6 +211,19 @@ public class CalendarActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
             locationText.setText("Location not found");
+        }
+    }
+
+
+    private String convertTo12HourFormat(String time) {
+        try {
+            SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            SimpleDateFormat sdf12 = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            Date date = sdf24.parse(time);
+            return sdf12.format(date);  // Converts "06:23" to "06:23 AM"
+        } catch (Exception e) {
+            e.printStackTrace();
+            return time;  // Return the original time if there's any error
         }
     }
 }
