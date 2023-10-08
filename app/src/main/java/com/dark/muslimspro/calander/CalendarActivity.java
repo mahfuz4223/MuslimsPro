@@ -31,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,6 +47,8 @@ public class CalendarActivity extends AppCompatActivity {
     private int selectedMonth;
     private int selectedYear;
 
+    private String selectedMethod;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +64,11 @@ public class CalendarActivity extends AppCompatActivity {
         locationText = findViewById(R.id.location_text); // Location TextView
 
         double latitude = getIntent().getDoubleExtra("latitude", 0.0); // Provide a default value
-        double longitude = getIntent().getDoubleExtra("longitude", 0.0); // Provide a default value
+        double longitude = getIntent().getDoubleExtra("longitude", 0.0);
+        String selectedMethod = getIntent().getStringExtra("selectedMethod");
+// Provide a default value
 
-        fetchPrayerTimes(latitude, longitude);
+        fetchPrayerTimes(latitude, longitude,selectedMethod);
 
         setupSpinners();
 
@@ -101,7 +104,7 @@ public class CalendarActivity extends AppCompatActivity {
                 double latitude = getIntent().getDoubleExtra("latitude", 0.0); // Provide a default value
                 double longitude = getIntent().getDoubleExtra("longitude", 0.0); // Provide a default value
 
-                fetchPrayerTimes(latitude, longitude);
+                fetchPrayerTimes(latitude, longitude, selectedMethod);
             }
 
             @Override
@@ -117,7 +120,7 @@ public class CalendarActivity extends AppCompatActivity {
                 double latitude = getIntent().getDoubleExtra("latitude", 0.0); // Provide a default value
                 double longitude = getIntent().getDoubleExtra("longitude", 0.0); // Provide a default value
 
-                fetchPrayerTimes(latitude, longitude);
+                fetchPrayerTimes(latitude, longitude, selectedMethod);
             }
 
             @Override
@@ -127,8 +130,8 @@ public class CalendarActivity extends AppCompatActivity {
         });
     }
 
-    public void fetchPrayerTimes(double latitude, double longitude) {
-        String url = "https://api.aladhan.com/v1/calendar/" + selectedYear + "?latitude=" + latitude + "&longitude=" + longitude + "&method=2";
+    public void fetchPrayerTimes(double latitude, double longitude, String selectedMethod) {
+        String url = "https://api.aladhan.com/v1/calendar/" + selectedYear + "?latitude=" + latitude + "&longitude=" + longitude + "&method="+selectedMethod;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -183,8 +186,6 @@ public class CalendarActivity extends AppCompatActivity {
         queue.add(jsonObjectRequest);
     }
 
-
-
     private void scrollToCurrentDate() {
         Calendar cal = Calendar.getInstance();
         int currentDay = cal.get(Calendar.DAY_OF_MONTH);
@@ -221,7 +222,6 @@ public class CalendarActivity extends AppCompatActivity {
             locationText.setText("Location not found");
         }
     }
-
 
     private String convertTo12HourFormat(String time) {
         try {

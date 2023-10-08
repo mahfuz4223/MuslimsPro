@@ -73,12 +73,11 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
-    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn;
+    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn,settingsButton;
 
     private CircularProgressBar nextTimeToGoProgress;
     private double latitude,longitude;
-
-
+    private String savedSelectedMethod;
 
 
     private Runnable runnable = new Runnable() {
@@ -131,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         tasbihCardView = findViewById(R.id.tasbih);
         calanderView =  findViewById(R.id.calanderCard);
         compassCardView =  findViewById(R.id.compassCard);
+        settingsButton =  findViewById(R.id.settingsac);
 
         namesbtn =  findViewById(R.id.namesbtn);
 
@@ -140,11 +140,14 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
 
 
+
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        // Retrieve selectedMethod from SharedPreferences
+        savedSelectedMethod = sharedPreferences.getString("selectedMethod", "");
+
+
         // Initialize the NetworkChangeReceiver
         networkChangeReceiver = new NetworkChangeReceiver(this);
-
-
-
 
 
         //bangla added
@@ -182,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 // Pass the latitude and longitude as extras
                 intent.putExtra("latitude", latitude);
                 intent.putExtra("longitude", longitude);
+                intent.putExtra("selectedMethod",savedSelectedMethod);
 
                 // Start the new activity
                 startActivity(intent);
@@ -210,6 +214,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Set an OnClickListener on the settingsButton to open the SettingActivity
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the SettingActivity
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+
+                // Start the new activity with startActivityForResult
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
+
 
 
 
@@ -231,8 +248,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     public void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -248,18 +263,24 @@ public class MainActivity extends AppCompatActivity {
                         String address = getAddressFromCoordinates(this, latitude, longitude);
                         locationText.setText(address);
 
-                        // Fetch prayer time data
-                        fetchLocationAndPrayerTimeData(latitude, longitude);
+                        String selectedMethod = getIntent().getStringExtra("selectedMethod");
+
+                        // Call fetchLocationAndPrayerTimeData with the selectedMethod
+                        fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
+
+                        // Display a toast message with the selectedMethod
+
                     } else {
                         Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void fetchLocationAndPrayerTimeData(double latitude, double longitude) {
+
+    private void fetchLocationAndPrayerTimeData(double latitude, double longitude,String selectedMethod) {
         // Fetch prayer time data using RetrofitClient and update UI
         RetrofitClient.getClient().create(PrayerTimeApiService.class)
-                .getPrayerTimes(latitude, longitude, "2")
+                .getPrayerTimes(latitude, longitude, selectedMethod)
                 .enqueue(new Callback<PrayerTimeResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<PrayerTimeResponse> call, @NonNull Response<PrayerTimeResponse> response) {
@@ -338,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
         fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
         dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
         asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
-       maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
+        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
         isha_end = adjustPrayerTime(isha_end, 588);     // Add 580 minutes to Isha
 
         // Update the TextViews with the adjusted prayer times
@@ -480,9 +501,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-
+    private void saveDataToSharedPreferences(String selectedMethod) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("selectedMethod", selectedMethod);
+        editor.apply();
+    }
 
 
     private String getCurrentPrayerEndTime() {
@@ -625,6 +648,10 @@ public class MainActivity extends AppCompatActivity {
         String hijri_holiday = sharedPreferences.getString("hijriHoliday", "");
         String savedLocationText = sharedPreferences.getString("locationText", "");
 
+
+        String savedSelectedMethod = sharedPreferences.getString("selectedMethod", "");
+
+
         // Update the TextViews or UI elements with the retrieved data
         sunriseText.setText(convertTo12HourFormat(sunriseTime));
         sunsetText.setText(convertTo12HourFormat(sunsetTime));
@@ -693,12 +720,6 @@ public class MainActivity extends AppCompatActivity {
         };
         timer.start();
     }
-
-
-
-
-
-
     // bangla calander
 
     private String convertToBanglaNumber(String input) {

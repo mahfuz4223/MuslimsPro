@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dark.muslimspro.MainActivity;
 import com.dark.muslimspro.R;
 
 import java.text.SimpleDateFormat;
@@ -18,7 +19,7 @@ import java.util.Locale;
 public class PrayerTimeAdapter extends RecyclerView.Adapter<PrayerTimeAdapter.ViewHolder> {
     private List<PrayerTimeModel> prayerTimes;
 
-    public PrayerTimeAdapter(List<PrayerTimeModel> prayerTimes) {
+    public PrayerTimeAdapter(List<PrayerTimeModel> prayerTimes, MainActivity mainActivity) {
         this.prayerTimes = prayerTimes;
     }
 

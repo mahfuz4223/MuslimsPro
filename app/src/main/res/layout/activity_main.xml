@@ -1048,7 +1048,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/azan"
+                    android:id="@+id/settingsac"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="1.5dp"
