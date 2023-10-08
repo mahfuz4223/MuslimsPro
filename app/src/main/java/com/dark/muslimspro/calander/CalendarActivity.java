@@ -152,7 +152,15 @@ public class CalendarActivity extends AppCompatActivity {
                                 String isha = convertTo12HourFormat(timingsObject.getString("Isha").split(" ")[0]);
 
 
-                                PrayerTime prayerTime = new PrayerTime(date, fajr, dhuhr, asr, maghrib, isha);
+                                // Extracting Hijri date
+                                JSONObject hijriObject = dateObject.getJSONObject("hijri");
+                                String hijriDay = hijriObject.getString("day");
+                                JSONObject hijriMonthObject = hijriObject.getJSONObject("month");
+                                String hijriMonthEn = hijriMonthObject.getString("en");
+                                String hijriYear = hijriObject.getString("year");
+
+
+                                PrayerTime prayerTime = new PrayerTime(date, fajr, dhuhr, asr, maghrib, isha, hijriDay, hijriMonthEn, hijriYear);
                                 prayerTimesList.add(prayerTime);
                             }
 

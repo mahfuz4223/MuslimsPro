@@ -40,9 +40,9 @@ public class PrayerTimeAdapter extends RecyclerView.Adapter<PrayerTimeAdapter.Pr
         holder.tvAsr.setText(prayerTime.getAsr());
         holder.tvMaghrib.setText(prayerTime.getMaghrib());
         holder.tvIsha.setText(prayerTime.getIsha());
-//        holder.tvHijriDay.setText(prayerTime.getHijriDay());
-//        holder.tvHijriMonthEn.setText(prayerTime.getHijriMonthEn());
-//        holder.tvHijriYear.setText(prayerTime.getHijriYear());
+        holder.tvHijriDay.setText(prayerTime.getHijriDay());
+        holder.tvHijriMonth.setText(prayerTime.getHijriMonthEn());
+        holder.tvHijriYear.setText(prayerTime.getHijriYear());
     }
 
 
@@ -64,11 +64,10 @@ public class PrayerTimeAdapter extends RecyclerView.Adapter<PrayerTimeAdapter.Pr
         return prayerTimes.size();
     }
 
-    class PrayerTimeViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvFajr, tvDhuhr, tvAsr, tvMaghrib, tvIsha;
 
-//        class PrayerTimeViewHolder extends RecyclerView.ViewHolder {
-//        TextView tvDate, tvFajr, tvDhuhr, tvAsr, tvMaghrib, tvIsha, tvHijriDay, tvHijriMonthEn, tvHijriYear;
+
+        class PrayerTimeViewHolder extends RecyclerView.ViewHolder {
+        TextView tvDate, tvFajr, tvDhuhr, tvAsr, tvMaghrib, tvIsha, tvHijriDay, tvHijriMonth, tvHijriYear;
 
         PrayerTimeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -78,9 +77,9 @@ public class PrayerTimeAdapter extends RecyclerView.Adapter<PrayerTimeAdapter.Pr
             tvAsr = itemView.findViewById(R.id.tvAsr);
             tvMaghrib = itemView.findViewById(R.id.tvMaghrib);
             tvIsha = itemView.findViewById(R.id.tvIsha);
-//            tvHijriDay = itemView.findViewById(R.id.tvHijriDay);
-//            tvHijriMonthEn = itemView.findViewById(R.id.tvHijriMonth);
-//            tvHijriYear = itemView.findViewById(R.id.tvHijriYear);
+            tvHijriDay = itemView.findViewById(R.id.tvHijriDay);
+            tvHijriMonth = itemView.findViewById(R.id.tvHijriMonth);
+            tvHijriYear = itemView.findViewById(R.id.tvHijriYear);
         }
     }
 }
