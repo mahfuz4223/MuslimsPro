@@ -67,6 +67,20 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+//    @Override
+//    public void onBackPressed() {
+//        // Get the selected prayer method from SharedPreferences
+//        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
+//        String selectedMethod = sharedPref.getString("selectedMethod","");
+//
+//        // Send the selected prayer method back to MainActivity
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.putExtra("selectedMethod", selectedMethod);
+//        startActivity(intent); // Start the activity
+//        finish(); // Finish the current activity
+//    }
+
+
     @Override
     public void onBackPressed() {
         // Get the selected prayer method from SharedPreferences
@@ -74,9 +88,10 @@ public class SettingsActivity extends AppCompatActivity {
         String selectedMethod = sharedPref.getString("selectedMethod","");
 
         // Send the selected prayer method back to MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent();
         intent.putExtra("selectedMethod", selectedMethod);
-        startActivity(intent); // Start the activity
+        setResult(RESULT_OK, intent); // Set the result as OK
         finish(); // Finish the current activity
     }
+
 }

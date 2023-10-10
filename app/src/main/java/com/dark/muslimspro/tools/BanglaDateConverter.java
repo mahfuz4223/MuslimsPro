@@ -8,6 +8,20 @@ import java.util.Date;
 
 public class BanglaDateConverter {
 
+//    public static String convertToBanglaNumber(String input) {
+//        String[] numbers = {"০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"};
+//        StringBuilder result = new StringBuilder();
+//        for (int i = 0; i < input.length(); i++) {
+//            char ch = input.charAt(i);
+//            if (ch >= '0' && ch <= '9') {
+//                result.append(numbers[ch - '0']);
+//            } else {
+//                result.append(ch);
+//            }
+//        }
+//        return result.toString();
+//    }
+
     public static String convertToBanglaNumber(String input) {
         String[] numbers = {"০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"};
         StringBuilder result = new StringBuilder();
@@ -21,6 +35,7 @@ public class BanglaDateConverter {
         }
         return result.toString();
     }
+
 
     public static String pickBanglaDate() {
 

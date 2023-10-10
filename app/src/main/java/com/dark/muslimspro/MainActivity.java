@@ -3,6 +3,7 @@ package com.dark.muslimspro;
 import static com.dark.muslimspro.tools.BanglaDateConverter.convertToBanglaNumber;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final long MAX_COUNTDOWN_TIME = 360000;
+    private static final int SETTINGS_REQUEST_CODE = 1;
 
     private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
     private TextView fajr_ends,dhuhr_ends,asr_ends,maghrib_ends,isha_ends;
@@ -167,9 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        // Retrieve selectedMethod from SharedPreferences
-        savedSelectedMethod = sharedPreferences.getString("selectedMethod", "");
+
 
 
         // Initialize the NetworkChangeReceiver
@@ -182,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
         // Load and display the random hadith
         loadAndDisplayRandomHadith();
 
+
+        NetworkConnected();
+
         //bangla added
 
         String banglaDate = BanglaDateConverter.pickBanglaDate();
@@ -193,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
         banglaDateTextView.setText(banglaDate);
 
 
-        saveDataToSharedPreferences(savedSelectedMethod);
 
 
         // Set an OnClickListener on the tasbihCardView
@@ -280,33 +283,94 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void getLocation() {
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SETTINGS_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                String selectedMethod = data.getStringExtra("selectedMethod");
+
+                // Now, you have the selectedMethod from the SettingsActivity.
+                // You can save it for future use in SharedPreferences.
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("selectedMethod", selectedMethod);
+                Log.d("MainActivity", "Selected Method onActivityResult: " + selectedMethod);
+                editor.apply();
+            }
+        }
+    }
+
+
+//    public void getLocation() {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//        fusedLocationClient.getLastLocation()
+//                .addOnSuccessListener(this, location -> {
+//                    if (location != null) {
+//                        latitude = location.getLatitude();
+//                        longitude = location.getLongitude();
+//
+//                        // Fetch and update location text
+//                        String address = getAddressFromCoordinates(this, latitude, longitude);
+//                        locationText.setText(address);
+//
+//                        String selectedMethod = getIntent().getStringExtra("selectedMethod");
+//
+//                        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+//                        // Retrieve selectedMethod from SharedPreferences
+//                       sharedPreferences.getString("selectedMethod", "");
+//
+//                        // Call fetchLocationAndPrayerTimeData with the selectedMethod
+//                        fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
+//
+//                        SharedPreferences.Editor editor = sharedPreferences.edit();
+//                        editor.putString("selectedMethod", selectedMethod);
+//                        editor.apply();
+//                        Toast.makeText(this, selectedMethod, Toast.LENGTH_LONG).show();
+//
+//                        // Display a toast message with the selectedMethod
+//
+//                    } else {
+//                        Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
+
+
+    private void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
 
                         // Fetch and update location text
                         String address = getAddressFromCoordinates(this, latitude, longitude);
                         locationText.setText(address);
 
-                        String selectedMethod = getIntent().getStringExtra("selectedMethod");
+                        // Retrieve the selectedMethod from SharedPreferences
+                        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
+                        String selectedMethod = sharedPref.getString("selectedMethod", "");
+                        Log.d("MainActivity", "Selected Method: " + selectedMethod);
 
                         // Call fetchLocationAndPrayerTimeData with the selectedMethod
                         fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
-
-                        // Display a toast message with the selectedMethod
-
                     } else {
                         Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+
+
 
 
     private void fetchLocationAndPrayerTimeData(double latitude, double longitude,String selectedMethod) {
@@ -330,6 +394,9 @@ public class MainActivity extends AppCompatActivity {
 //                            String magrib = prayerTimeResponse.getData().getTimings().getMaghrib();
 //                            String isha = prayerTimeResponse.getData().getTimings().getIsha();
 
+                            sunriseText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunriseTime)));
+                            sunsetText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunsetTime)));
+
                             String[] hijri_holiday = prayerTimeResponse.getData().getDate().getHijri().getHolidays();
 
                             if (hijri_holiday != null && hijri_holiday.length > 0) {
@@ -349,7 +416,9 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            hidate_text.setText(hijri_date);
+                            hidate_text.setText(BanglaDateConverter.convertToBanglaNumber(hijri_date));
+                            hijrimonth_text.setText(" " + hijri_month);
+                            hijriyear_text.setText(BanglaDateConverter.convertToBanglaNumber(" " + hijri_year));
 
                             // Adjust prayer times
                             adjustPrayerTimes(prayerTimeResponse);
@@ -377,42 +446,28 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void calculateEndtime(PrayerTimeResponse prayerTimeResponse) {
-
-        String fajr_end = prayerTimeResponse.getData().getTimings().getFajr();
-        String dhuhr_end = prayerTimeResponse.getData().getTimings().getDhuhr();
-        String asr_end = prayerTimeResponse.getData().getTimings().getAsr();
-        String maghrib_end = prayerTimeResponse.getData().getTimings().getMaghrib();
-        String isha_end = prayerTimeResponse.getData().getTimings().getIsha();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
-//        // Adjust the prayer times
-//        fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
-//        dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
-//        asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
-//        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
-//        isha_end = adjustPrayerTime(isha_end, 588);
-
-        fajr_end = adjustPrayerTime(fajr_end, 47);     // Add 47 minutes to Fajr
-        dhuhr_end = adjustPrayerTime(dhuhr_end, 249);   // Add 249 minutes to Dhuhr
-        asr_end = adjustPrayerTime(asr_end, 98);       // Add 98 minutes to Asr
-        maghrib_end = adjustPrayerTime(maghrib_end, 71);  // Add 71 minutes to Maghrib
-        isha_end = adjustPrayerTime(isha_end, 580);     // Add 580 minutes to Isha
-
-        // Update the TextViews with the adjusted prayer times
-        fajr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(fajr_end)));
-        dhuhr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(dhuhr_end)));
-        asr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(asr_end)));
-        maghrib_ends.setText(convertTo12HourFormat(convertToBanglaNumber(maghrib_end)));
-        isha_ends.setText(convertTo12HourFormat(convertToBanglaNumber(isha_end)));
 
 
-        // Calculate time remaining until the end of the current prayer and update the progress bar
-        String currentPrayerEndTime = getCurrentPrayerEndTime();
-        long timeRemaining = getTimeDifference(getCurrentTime(), currentPrayerEndTime);
-        updateNextTimeToGoProgress(timeRemaining);
 
+    private String adjustPrayerTime(String prayerTime, int minutesToAddOrSubtract) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Date prayerTimeDate = sdf.parse(prayerTime);
+
+            Calendar calendar = Calendar.getInstance();
+            assert prayerTimeDate != null;
+            calendar.setTime(prayerTimeDate);
+
+            // Add or subtract minutes from the prayer time
+            calendar.add(Calendar.MINUTE, minutesToAddOrSubtract);
+
+            // Format the updated time back to a string in HH:mm format
+
+            return sdf.format(calendar.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return prayerTime; // Return the original time in case of an error
+        }
     }
 
     private void adjustPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
@@ -428,63 +483,81 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Update the TextViews with the adjusted prayer times
-        fajrTime.setText(convertTo12HourFormat(convertToBanglaNumber(fajr)));
-        dhuhrTime.setText(convertTo12HourFormat(dhuhr));
-        asrTime.setText(convertTo12HourFormat(asr));
-        maghribTime.setText(convertTo12HourFormat(magrib));
-        ishaTime.setText(convertTo12HourFormat(isha));
+        // Update the TextViews with adjusted prayer times using convertToBanglaNumber
+        fajrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(fajr)));
+        dhuhrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(dhuhr)));
+        asrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(asr)));
+        maghribTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(magrib)));
+        ishaTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(isha)));
+    }
+
+    private void calculateEndtime(PrayerTimeResponse prayerTimeResponse) {
+
+        String fajr_end = prayerTimeResponse.getData().getTimings().getFajr();
+        String dhuhr_end = prayerTimeResponse.getData().getTimings().getDhuhr();
+        String asr_end = prayerTimeResponse.getData().getTimings().getAsr();
+        String maghrib_end = prayerTimeResponse.getData().getTimings().getMaghrib();
+        String isha_end = prayerTimeResponse.getData().getTimings().getIsha();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        // Adjust the prayer times
+        fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
+        dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
+        asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
+        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
+        isha_end = adjustPrayerTime(isha_end, 588);
+
+//        fajr_end = adjustPrayerTime(fajr_end, 74);     // Add 47 minutes to Fajr
+//        dhuhr_end = adjustPrayerTime(dhuhr_end, 249);   // Add 249 minutes to Dhuhr
+//        asr_end = adjustPrayerTime(asr_end, 98);       // Add 98 minutes to Asr
+//        maghrib_end = adjustPrayerTime(maghrib_end, 71);  // Add 71 minutes to Maghrib
+//        isha_end = adjustPrayerTime(isha_end, 580);     // Add 580 minutes to Isha
+
+        fajr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(fajr_end)));
+        dhuhr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(dhuhr_end)));
+        asr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(asr_end)));
+        maghrib_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(maghrib_end)));
+        isha_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(isha_end)));
+
+
+
+
+        // Calculate time remaining until the end of the current prayer and update the progress bar
+        String currentPrayerEndTime = getCurrentPrayerEndTime();
+        long timeRemaining = getTimeDifference(getCurrentTime(), currentPrayerEndTime);
+        updateNextTimeToGoProgress(timeRemaining);
+
     }
 
 
-    private String adjustPrayerTime(String prayerTime, int minutesToAddOrSubtract) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            Date prayerTimeDate = sdf.parse(prayerTime);
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(prayerTimeDate);
 
-            // Add or subtract minutes from the prayer time
-            calendar.add(Calendar.MINUTE, minutesToAddOrSubtract);
-
-            // Format the updated time back to a string in HH:mm format
-            String adjustedPrayerTime = sdf.format(calendar.getTime());
-
-            return adjustedPrayerTime;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return prayerTime; // Return the original time in case of an error
-        }
-    }
 
 
 
     private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
         List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
-
-        // Get the current time
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String currentTime = sdf.format(new Date());
-
-        // Find the current and upcoming prayer times
         PrayerTimeModel currentPrayer = null;
         PrayerTimeModel upcomingPrayer = null;
 
+        // Use a boolean flag to check if an upcoming prayer has been found
+        boolean foundUpcomingPrayer = false;
+
         for (PrayerTimeModel prayer : prayerTimes) {
             String prayerTime = prayer.getStartTime();
-
-            // Compare the current time with each prayer time
             try {
                 Date current = sdf.parse(currentTime);
                 Date prayerTimeDate = sdf.parse(prayerTime);
-
-                if (current.before(prayerTimeDate)) {
+                if (current.before(prayerTimeDate) && !foundUpcomingPrayer) {
                     if (prayer.getPrayerName().equals("Lastthird")) {
                         upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
                     } else {
                         upcomingPrayer = prayer;
                     }
-                    break;
+                    foundUpcomingPrayer = true; // Set the flag to true
                 } else {
                     currentPrayer = prayer;
                 }
@@ -519,7 +592,7 @@ public class MainActivity extends AppCompatActivity {
 
             current_prayer_time_name_Text.setText(currentPrayer.getPrayerName());
             upcoming_prayer_name.setText(upcomingPrayer.getPrayerName());
-            next_prayer_time.setText(convertTo12HourFormat(upcomingPrayerTime));
+            next_prayer_time.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(upcomingPrayerTime)));
         } else {
             current_prayer_time_name_Text.setText("No prayer");
             upcoming_prayer_name.setText("No prayer");
@@ -528,16 +601,6 @@ public class MainActivity extends AppCompatActivity {
             // Set the progress to 0 if there is no upcoming prayer
             nextTimeToGoProgress.setProgress(0);
         }
-    }
-
-
-
-
-    private void saveDataToSharedPreferences(String selectedMethod) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("selectedMethod", selectedMethod);
-        editor.apply();
-        Toast.makeText(this, selectedMethod, Toast.LENGTH_LONG).show();
     }
 
 
@@ -672,6 +735,7 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    @SuppressLint("SetTextI18n")
     private void retrieveDataFromSharedPreferences() {
         String sunriseTime = sharedPreferences.getString("sunriseTime", "");
         String sunsetTime = sharedPreferences.getString("sunsetTime", "");
@@ -686,18 +750,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Update the TextViews or UI elements with the retrieved data
-        sunriseText.setText(convertTo12HourFormat(sunriseTime));
-        sunsetText.setText(convertTo12HourFormat(sunsetTime));
-        hidate_text.setText(hijri_date);
+        sunriseText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunriseTime)));
+        sunsetText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunsetTime)));
+        hidate_text.setText(BanglaDateConverter.convertToBanglaNumber(hijri_date));
         hijrimonth_text.setText(" " + hijri_month);
-        hijriyear_text.setText(" " + hijri_year);
+        hijriyear_text.setText(BanglaDateConverter.convertToBanglaNumber(" " + hijri_year));
         hijri_holidays.setText(hijri_holiday);
         locationText.setText(savedLocationText);
 
         // You can use this retrieved data in your UI as needed
     }
 
-    private boolean isNetworkConnected() {
+    private boolean NetworkConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null) {
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -738,7 +802,7 @@ public class MainActivity extends AppCompatActivity {
                 String timeRemaining = String.format(Locale.getDefault(), "%02d : %02d : %02d ", hours, minutes, seconds);
 
                 // Update both the TextView and CircularProgressBar
-                nextPrayerTimeToGo.setText(timeRemaining);
+                nextPrayerTimeToGo.setText(BanglaDateConverter.convertToBanglaNumber(timeRemaining));
 
 
                 int progress = (int) ((millisUntilFinished / 1000) / 60); // Convert to minutes
@@ -753,6 +817,12 @@ public class MainActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
+
+
+
+
+
 
 
 

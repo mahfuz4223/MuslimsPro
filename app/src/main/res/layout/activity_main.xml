@@ -56,7 +56,7 @@
                 android:id="@+id/hijri_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/hakan"
+                android:fontFamily="@font/bangla"
                 android:text="১৪"
                 android:textColor="@color/white"
                 android:textSize="20sp"
@@ -76,7 +76,7 @@
                 android:id="@+id/hijri_year"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/hakan"
+                android:fontFamily="@font/bangla"
                 android:text="১৪৪৩ হিঃ"
                 android:textColor="@color/white"
                 android:textSize="20sp"
@@ -169,6 +169,7 @@
                             android:layout_marginTop="5dp"
                             android:maxLines="1"
                             android:text="00"
+                            android:fontFamily="@font/bangla"
                             android:textColor="@color/white"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -243,6 +244,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
 
@@ -277,6 +279,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/_00_00_"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -433,6 +436,7 @@
                                 android:layout_height="match_parent"
                                 android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -442,6 +446,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -490,6 +495,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -497,8 +503,9 @@
                                 android:id="@+id/dhuhr_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginRight="15dp"
+                                android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -547,8 +554,9 @@
                                 android:id="@+id/asr"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginRight="15dp"
+                                android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -558,6 +566,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -607,6 +616,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -616,6 +626,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -663,6 +674,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -672,6 +684,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
                         </LinearLayout>
