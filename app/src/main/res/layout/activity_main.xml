@@ -12,7 +12,7 @@
     <LinearLayout
         android:id="@+id/linear_layout_1"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="220dp"
         android:background="@drawable/bg"
         android:orientation="vertical">
 
@@ -22,9 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp">
+            android:layout_marginEnd="10dp">
 
             <ImageView
                 android:id="@+id/location_image"
@@ -91,7 +89,6 @@
             android:id="@+id/bangla_date_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/hijriLinier"
             android:layout_marginStart="20dp"
             android:orientation="horizontal">
 
@@ -100,30 +97,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="১৮ই আশ্বিন ১৪৩০"
+
+                android:fontFamily="@font/bangla"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/hijri_holidays_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/hijri_holidays"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="১২  রবিউল আউয়াল "
+                android:text="১২ রবিউল আউয়াল "
                 android:textColor="@color/white"
                 android:textSize="18sp"
+                android:layout_marginStart="20dp"
                 android:textStyle="bold" />
 
         </LinearLayout>
-
 
 
         <LinearLayout
@@ -160,15 +150,14 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/upcoming_prayer_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/Asr"
+                            android:layout_marginTop="5dp"
+                            android:text="@string/asr"
                             android:textColor="@color/white"
                             android:textSize="25sp"
                             android:textStyle="bold" />
@@ -187,14 +176,12 @@
                     </LinearLayout>
 
 
-
-
                 </LinearLayout>
 
 
                 <View
                     android:layout_width="2dp"
-                    android:layout_height="110dp"
+                    android:layout_height="95dp"
                     android:layout_marginTop="5dp"
                     android:background="@color/white" />
 
@@ -217,7 +204,7 @@
                             android:layout_marginStart="10dp"
                             android:text="@string/dahur"
                             android:textColor="@color/white"
-                            android:textSize="30sp"
+                            android:textSize="25sp"
                             android:textStyle="bold" />
 
 
@@ -315,30 +302,29 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_margin="8dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:orientation="horizontal"
-                android:weightSum="2"
                 android:background="@color/colorPrimary"
-                >
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="150dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        >
+                        android:orientation="horizontal">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -383,11 +369,12 @@
                                 android:layout_alignEnd="@+id/next_prayer_time_to_go"
                                 android:layout_marginStart="08dp"
                                 android:layout_marginTop="-5dp"
+                                android:fontFamily="@font/bangla"
+                                android:gravity="center"
                                 android:maxLines="1"
                                 android:text="@string/next_prayer"
                                 android:textColor="@color/purple_500"
                                 android:textSize="12sp"
-                                android:gravity="center"
                                 android:textStyle="bold" />
 
 
@@ -401,32 +388,31 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="150dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
                     android:layout_margin="5dp"
-                    android:weightSum="5"
-                    >
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:weightSum="5">
 
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
                         android:layout_weight="1"
-                        >
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Fajr"
+                                android:text="@string/fajr"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -436,32 +422,29 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:weightSum="2"
-                            android:gravity="right">
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:id="@+id/fajr"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"
-                                />
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/fajr_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginEnd="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"
-                                />
+                                android:textStyle="bold" />
                         </LinearLayout>
-
 
 
                     </LinearLayout>
@@ -470,23 +453,23 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
                         android:layout_weight="1"
-                        >
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
 
                             <TextView
 
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Dhuhr"
+                                android:text="@string/dhuhr"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -496,10 +479,10 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:weightSum="2"
-                            android:gravity="right">
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:id="@+id/dhuhr"
@@ -514,14 +497,13 @@
                                 android:id="@+id/dhuhr_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"/>
+                                android:textStyle="bold" />
 
 
                         </LinearLayout>
-
 
 
                     </LinearLayout>
@@ -530,23 +512,23 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
                         android:layout_weight="1"
-                        >
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
 
                             <TextView
 
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Asr"
+                                android:text="@string/asr"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -556,30 +538,29 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:weightSum="2"
-                            android:gravity="right">
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:id="@+id/asr"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"/>
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/asr_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
-
 
 
                     </LinearLayout>
@@ -588,25 +569,25 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
                         android:layout_weight="1"
-                        >
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
 
                             <TextView
 
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Maghrib"
-                                android:textSize="12sp"
+                                android:text="@string/maghrib"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -615,32 +596,29 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:weightSum="2"
-                            android:gravity="right">
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:id="@+id/maghrib"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"
-                                />
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/maghrib_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"
-                                />
+                                android:textStyle="bold" />
                         </LinearLayout>
-
 
 
                     </LinearLayout>
@@ -649,22 +627,22 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
                         android:layout_weight="1"
-                        >
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Isha"
+                                android:text="@string/isha"
+                                android:fontFamily="@font/bangla"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
@@ -674,39 +652,35 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:layout_weight="1"
-                            android:weightSum="2"
-                            android:gravity="right">
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
                             <TextView
                                 android:id="@+id/isha"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"/>
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/isha_end"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginRight="15dp"
                                 android:text="@string/_00_00"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:layout_marginRight="15dp"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
-
 
 
                     </LinearLayout>
 
 
-
-
                 </LinearLayout>
-
 
 
             </LinearLayout>
@@ -721,20 +695,14 @@
         android:id="@+id/alltoolsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="02dp">
-
-
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/top_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView3">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -750,8 +718,8 @@
                     android:layout_margin="1.5dp"
                     android:layout_weight="1"
                     android:clickable="true"
-
-                    app:cardCornerRadius="5dp">
+                    app:cardCornerRadius="5dp"
+                    android:focusable="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -771,6 +739,7 @@
                             android:layout_height="wrap_content"
                             android:text="নামাজ শিক্ষা"
                             android:textColor="#424242"
+                            android:fontFamily="@font/bangla"
                             android:textSize="14sp" />
 
 
@@ -805,6 +774,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="রাকাত টেবিলা"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -841,6 +811,7 @@
                             android:layout_height="wrap_content"
                             android:text="হিজরী ক্যালেন্ডার"
                             android:textColor="#424242"
+                            android:fontFamily="@font/bangla"
                             android:textSize="14sp" />
 
 
@@ -886,6 +857,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="আল্লাহর ৯৯ নাম"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -921,6 +893,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="সূরা সমুহ"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -956,6 +929,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="কিবলা নির্ণয়"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -1003,6 +977,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="তাসবিহ পাঠ"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -1038,6 +1013,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="কালিমা সমূহ"
+                            android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -1054,7 +1030,8 @@
                     android:layout_margin="1.5dp"
                     android:layout_weight="1"
                     android:clickable="true"
-                    app:cardCornerRadius="5dp">
+                    app:cardCornerRadius="5dp"
+                    android:focusable="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1073,6 +1050,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Settings"
+
                             android:textColor="#424242"
                             android:textSize="14sp" />
 
@@ -1089,5 +1067,100 @@
         </LinearLayout>
 
     </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/alltoolsLayout"
+        android:orientation="vertical">
+
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:background="@color/colorPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="5dp">
+
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        >
+
+                        <TextView
+                            android:id="@+id/hadithNameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="@color/black"
+                            android:text="আবূ হুরায়রা (রাঃ) থেকে বর্ণিতঃ"
+                            android:fontFamily="@font/bangla"
+                            android:textStyle="bold"
+                            android:layout_weight="1"
+                            />
+
+
+                        <TextView
+                            android:id="@+id/hadithReferencesTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:text="মুসলিম ২৬৯৯"
+                            android:fontFamily="@font/bangla"
+                            android:layout_weight="2"
+                            android:textColor="@color/purple_500"/>
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/hadithDescriptionTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/bangla"
+                        android:text="তিনি বলেন, রাসূলুল্লাহ (সাল্লাল্লাহু ‘আলাইহি ওয়া সাল্লাম) বলেছেন, “যে ব্যাক্তি জ্ঞানার্জনের জন্য কোন পথে চলে, আল্লাহ্‌ তার জন্য জান্নাতের পথ সহজ করে দেন।”"
+                        android:textColor="@android:color/black"/>
+
+                    <TextView
+                        android:id="@+id/hadithGradeTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:visibility="gone"
+                        android:textColor="@android:color/darker_gray"/>
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+
+
+        </ScrollView>
+    </LinearLayout>
+
+
+
 
 </RelativeLayout>

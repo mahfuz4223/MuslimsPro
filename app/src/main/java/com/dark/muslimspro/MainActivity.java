@@ -1,5 +1,7 @@
 package com.dark.muslimspro;
 
+import static com.dark.muslimspro.tools.BanglaDateConverter.convertToBanglaNumber;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +29,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.dark.muslimspro.AllahNames.AllahAr99NamAndFojilotMainActivity;
+import com.dark.muslimspro.Hadith.Hadith;
+import com.dark.muslimspro.Hadith.HadithManager;
+import com.dark.muslimspro.Hadith.JsonFileLoader;
 import com.dark.muslimspro.calander.CalendarActivity;
 import com.dark.muslimspro.prayertime.PrayerTimeAdapter;
 import com.dark.muslimspro.prayertime.PrayerTimeApiService;
@@ -38,8 +44,15 @@ import com.dark.muslimspro.tools.NetworkChangeReceiver;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.card.MaterialCardView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
     private TextView fajr_ends,dhuhr_ends,asr_ends,maghrib_ends,isha_ends;
+
+
+    private HadithManager hadithManager;
+    private TextView   hadithNameTextView, hadithDescriptionTextView ,hadithReferencesTextView,hadithGradeTextView;
+
     private FusedLocationProviderClient fusedLocationClient;
     private RequestQueue requestQueue;
     private SharedPreferences sharedPreferences;
@@ -126,6 +144,13 @@ public class MainActivity extends AppCompatActivity {
         isha_ends = findViewById(R.id.isha_end);
 
 
+        // Initialize your TextViews
+        hadithNameTextView = findViewById(R.id.hadithNameTextView);
+        hadithDescriptionTextView = findViewById(R.id.hadithDescriptionTextView);
+        hadithReferencesTextView = findViewById(R.id.hadithReferencesTextView);
+        hadithGradeTextView = findViewById(R.id.hadithGradeTextView);
+
+
 
         // Find the MaterialCardView with ID "tasbih"
         tasbihCardView = findViewById(R.id.tasbih);
@@ -151,9 +176,13 @@ public class MainActivity extends AppCompatActivity {
         networkChangeReceiver = new NetworkChangeReceiver(this);
 
 
-        //bangla added
-        // Inside your onCreate method or where you want to update the Bangla date
+        // Initialize HadithManager
+        hadithManager = new HadithManager(this);
 
+        // Load and display the random hadith
+        loadAndDisplayRandomHadith();
+
+        //bangla added
 
         String banglaDate = BanglaDateConverter.pickBanglaDate();
 
@@ -164,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         banglaDateTextView.setText(banglaDate);
 
 
-
+        saveDataToSharedPreferences(savedSelectedMethod);
 
 
         // Set an OnClickListener on the tasbihCardView
@@ -358,19 +387,25 @@ public class MainActivity extends AppCompatActivity {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-        // Adjust the prayer times
-        fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
-        dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
-        asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
-        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
-        isha_end = adjustPrayerTime(isha_end, 588);     // Add 580 minutes to Isha
+//        // Adjust the prayer times
+//        fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
+//        dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
+//        asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
+//        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
+//        isha_end = adjustPrayerTime(isha_end, 588);
+
+        fajr_end = adjustPrayerTime(fajr_end, 47);     // Add 47 minutes to Fajr
+        dhuhr_end = adjustPrayerTime(dhuhr_end, 249);   // Add 249 minutes to Dhuhr
+        asr_end = adjustPrayerTime(asr_end, 98);       // Add 98 minutes to Asr
+        maghrib_end = adjustPrayerTime(maghrib_end, 71);  // Add 71 minutes to Maghrib
+        isha_end = adjustPrayerTime(isha_end, 580);     // Add 580 minutes to Isha
 
         // Update the TextViews with the adjusted prayer times
-        fajr_ends.setText(convertTo12HourFormat(fajr_end));
-        dhuhr_ends.setText(convertTo12HourFormat(dhuhr_end));
-        asr_ends.setText(convertTo12HourFormat(asr_end));
-        maghrib_ends.setText(convertTo12HourFormat(maghrib_end));
-        isha_ends.setText(convertTo12HourFormat(isha_end));
+        fajr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(fajr_end)));
+        dhuhr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(dhuhr_end)));
+        asr_ends.setText(convertTo12HourFormat(convertToBanglaNumber(asr_end)));
+        maghrib_ends.setText(convertTo12HourFormat(convertToBanglaNumber(maghrib_end)));
+        isha_ends.setText(convertTo12HourFormat(convertToBanglaNumber(isha_end)));
 
 
         // Calculate time remaining until the end of the current prayer and update the progress bar
@@ -391,15 +426,9 @@ public class MainActivity extends AppCompatActivity {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-        // Adjust the prayer times
-        fajr = adjustPrayerTime(fajr, -12); // Subtract 12 minutes from Fajr
-        dhuhr = adjustPrayerTime(dhuhr, 4);  // Add 4 minutes to Dhuhr
-        asr = adjustPrayerTime(asr, 51);     // Add 50 minutes to Asr
-        magrib = adjustPrayerTime(magrib, 3); // Add 2 minutes to Maghrib
-        isha = adjustPrayerTime(isha, 12);   // Add 12 minutes to Isha
 
         // Update the TextViews with the adjusted prayer times
-        fajrTime.setText(convertTo12HourFormat(fajr));
+        fajrTime.setText(convertTo12HourFormat(convertToBanglaNumber(fajr)));
         dhuhrTime.setText(convertTo12HourFormat(dhuhr));
         asrTime.setText(convertTo12HourFormat(asr));
         maghribTime.setText(convertTo12HourFormat(magrib));
@@ -508,6 +537,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("selectedMethod", selectedMethod);
         editor.apply();
+        Toast.makeText(this, selectedMethod, Toast.LENGTH_LONG).show();
     }
 
 
@@ -723,5 +753,65 @@ public class MainActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
+
+
+    private void loadAndDisplayRandomHadith() {
+        // Load JSON data from your db.json file
+        String jsonString = JsonFileLoader.loadJSONFromAsset(this, "db.json");
+
+        try {
+            if (jsonString != null && !jsonString.isEmpty()) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                JSONArray hadithsArray = jsonObject.getJSONArray("hadiths");
+
+                // Deserialize JSON data into a list of Hadith objects using Gson
+                Type listType = new TypeToken<ArrayList<Hadith>>() {}.getType();
+                ArrayList<Hadith> hadithList = new Gson().fromJson(hadithsArray.toString(), listType);
+
+                if (!hadithList.isEmpty()) {
+                    // Get a random hadith using HadithManager
+                    Hadith randomHadith = hadithManager.getRandomHadith(hadithList);
+
+                    // Display the random hadith in the TextViews
+                    if (randomHadith != null) {
+                        // Update the TextViews with the hadith information
+                        hadithNameTextView.setText(randomHadith.getName());
+                        hadithDescriptionTextView.setText(randomHadith.getDescription());
+                        hadithReferencesTextView.setText(randomHadith.getReferences());
+                       // hadithGradeTextView.setText("Grade: " + randomHadith.getGrade());
+                    } else {
+                        // Handle the case where randomHadith is null
+                        Log.e("RandomHadithError", "Random Hadith is null");
+                        showToast("Failed to load a random Hadith. Please try again later.");
+                    }
+                } else {
+                    // Handle the case where hadithList is empty
+                    Log.e("HadithListError", "List of Hadiths is empty");
+                    showToast("No Hadiths available at the moment. Please check your data source.");
+                }
+            } else {
+                // Handle the case where jsonString is null or empty
+                Log.e("JsonLoadError", "JSON data is null or empty");
+                showToast("Failed to load JSON data. Please check your network connection.");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            // Handle the JSON parsing exception
+            Log.e("JsonParsingError", "Error parsing JSON data: " + e.getMessage());
+            showToast("An error occurred while parsing JSON data. Please try again later.");
+        }
+    }
+
+    private void showToast(String message) {
+        // Display a toast message to inform the user about errors
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+
+
+
+
+
 
 }
