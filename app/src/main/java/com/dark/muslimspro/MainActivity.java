@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final long MAX_COUNTDOWN_TIME = 360000;
     private static final int SETTINGS_REQUEST_CODE = 1;
+    private static final String TAG = "MainActivity";
+
 
     private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
     private TextView fajr_ends,dhuhr_ends,asr_ends,maghrib_ends,isha_ends;
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(this, 3000); // Delay in milliseconds (3 seconds)
         }
     };
+    private int selectedMethodIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,11 +257,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Create an Intent to navigate to the SettingActivity
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+             //   Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
                 // Start the new activity with startActivityForResult
                 // Start the new activity
-                startActivity(intent);
+
+
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(intent, SETTINGS_REQUEST_CODE);
+
             }
         });
 
@@ -270,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             // Request location updates
+
             getLocation();
         }
 
@@ -283,23 +291,61 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                String selectedMethod = data.getStringExtra("selectedMethod");
 
-                // Now, you have the selectedMethod from the SettingsActivity.
-                // You can save it for future use in SharedPreferences.
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("selectedMethod", selectedMethod);
-                Log.d("MainActivity", "Selected Method onActivityResult: " + selectedMethod);
-                editor.apply();
+        if (requestCode == SETTINGS_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                int selectedMethodIndex = data.getIntExtra("selectedMethodIndex", -1);
+
+                if (selectedMethodIndex != -1) {
+                    // Store the selectedMethodIndex in a class variable for later use
+                    this.selectedMethodIndex = selectedMethodIndex;
+
+                    // Now you have the selectedMethodIndex available for use
+                    Log.d(TAG, "Selected Method Index: " + selectedMethodIndex);
+
+                    // You can also call the getLocation method here if needed
+                    getLocation();
+                }
             }
         }
     }
+
+    // Modify the getLocation method to use selectedMethodIndex
+    public void getLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Request location updates
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+
+                            // Fetch and update location text
+                            String address = getAddressFromCoordinates(this, latitude, longitude);
+                            locationText.setText(address);
+
+                            // Use the stored selectedMethodIndex here
+                            Log.d(TAG, "Selected Method Index in getLocation: " + selectedMethodIndex);
+
+                            // Call fetchLocationAndPrayerTimeData with the selectedMethodIndex
+
+
+
+                            fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethodIndex);
+                        } else {
+                            Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+
+
 
 
 //    public void getLocation() {
@@ -317,21 +363,17 @@ public class MainActivity extends AppCompatActivity {
 //                        String address = getAddressFromCoordinates(this, latitude, longitude);
 //                        locationText.setText(address);
 //
-//                        String selectedMethod = getIntent().getStringExtra("selectedMethod");
+//                        int selectedMethod = getIntent().getIntExtra("selectedMethodIndex", 0);
 //
-//                        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-//                        // Retrieve selectedMethod from SharedPreferences
-//                       sharedPreferences.getString("selectedMethod", "");
+//                        //Toast.makeText(this, selectedMethod, Toast.LENGTH_SHORT).show();
+//
+////                        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
+////                        String selectedMethod = sharedPref.getString("selectedMethod", "");
+//                       Log.d("MainActivity", "Selected Method: " + selectedMethod);
 //
 //                        // Call fetchLocationAndPrayerTimeData with the selectedMethod
 //                        fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
 //
-//                        SharedPreferences.Editor editor = sharedPreferences.edit();
-//                        editor.putString("selectedMethod", selectedMethod);
-//                        editor.apply();
-//                        Toast.makeText(this, selectedMethod, Toast.LENGTH_LONG).show();
-//
-//                        // Display a toast message with the selectedMethod
 //
 //                    } else {
 //                        Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
@@ -340,43 +382,15 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-    private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-
-                        // Fetch and update location text
-                        String address = getAddressFromCoordinates(this, latitude, longitude);
-                        locationText.setText(address);
-
-                        // Retrieve the selectedMethod from SharedPreferences
-                        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
-                        String selectedMethod = sharedPref.getString("selectedMethod", "");
-                        Log.d("MainActivity", "Selected Method: " + selectedMethod);
-
-                        // Call fetchLocationAndPrayerTimeData with the selectedMethod
-                        fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
-                    } else {
-                        Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
 
 
 
 
 
-    private void fetchLocationAndPrayerTimeData(double latitude, double longitude,String selectedMethod) {
+    private void fetchLocationAndPrayerTimeData(double latitude, double longitude, int selectedMethodIndex) {
         // Fetch prayer time data using RetrofitClient and update UI
         RetrofitClient.getClient().create(PrayerTimeApiService.class)
-                .getPrayerTimes(latitude, longitude, selectedMethod)
+                .getPrayerTimes(latitude, longitude, selectedMethodIndex)
                 .enqueue(new Callback<PrayerTimeResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<PrayerTimeResponse> call, @NonNull Response<PrayerTimeResponse> response) {
@@ -538,26 +552,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
         List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
+        // Get the current time
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String currentTime = sdf.format(new Date());
+        // Find the current and upcoming prayer times
         PrayerTimeModel currentPrayer = null;
         PrayerTimeModel upcomingPrayer = null;
-
-        // Use a boolean flag to check if an upcoming prayer has been found
-        boolean foundUpcomingPrayer = false;
-
         for (PrayerTimeModel prayer : prayerTimes) {
             String prayerTime = prayer.getStartTime();
+            // Compare the current time with each prayer time
             try {
                 Date current = sdf.parse(currentTime);
                 Date prayerTimeDate = sdf.parse(prayerTime);
-                if (current.before(prayerTimeDate) && !foundUpcomingPrayer) {
+                if (current.before(prayerTimeDate)) {
                     if (prayer.getPrayerName().equals("Lastthird")) {
                         upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
                     } else {
                         upcomingPrayer = prayer;
                     }
-                    foundUpcomingPrayer = true; // Set the flag to true
+                    break;
                 } else {
                     currentPrayer = prayer;
                 }
@@ -565,23 +578,17 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
         // Display the current and upcoming prayer times
         if (currentPrayer != null && upcomingPrayer != null) {
             String currentTimes = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()); // Get the current time
-
             String upcomingPrayerTime = upcomingPrayer.getStartTime();
-
             long timeRemaining = getTimeDifference(currentTimes, upcomingPrayerTime);
-
             if (timeRemaining > 0) {
                 // Calculate progress based on the time remaining
                 int maxProgress = (int) timeRemaining; // Maximum progress value
                 int progress = (int) ((timeRemaining / (float) MAX_COUNTDOWN_TIME) * maxProgress);
-
                 // Set the progress for nextTimeToGoProgress
                 nextTimeToGoProgress.setProgress(progress);
-
                 // Start the countdown timer
                 startCountdownTimer(timeRemaining);
             } else {
@@ -589,7 +596,6 @@ public class MainActivity extends AppCompatActivity {
                 nextTimeToGoProgress.setProgress(100);
                 nextPrayerTimeToGo.setText("Prayer time has passed");
             }
-
             current_prayer_time_name_Text.setText(currentPrayer.getPrayerName());
             upcoming_prayer_name.setText(upcomingPrayer.getPrayerName());
             next_prayer_time.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(upcomingPrayerTime)));
@@ -597,7 +603,6 @@ public class MainActivity extends AppCompatActivity {
             current_prayer_time_name_Text.setText("No prayer");
             upcoming_prayer_name.setText("No prayer");
             next_prayer_time.setText("");
-
             // Set the progress to 0 if there is no upcoming prayer
             nextTimeToGoProgress.setProgress(0);
         }
@@ -711,7 +716,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLocation();
+
+             getLocation();
             } else {
                 Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }

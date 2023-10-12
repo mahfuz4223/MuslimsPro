@@ -4,94 +4,74 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.dark.muslimspro.calander.CalendarActivity;
-
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final String TAG = "SettingsActivity"; // Define a tag for your logs
+
+    private Spinner spinner;
+    private Button saveButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        final Spinner spinner = findViewById(R.id.prayerMethodSpinner);
+        spinner = findViewById(R.id.prayerMethodSpinner);
+        saveButton = findViewById(R.id.saveButton);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.prayer_methods, android.R.layout.simple_spinner_item);
+        // Create an ArrayAdapter and set it to the spinner
+        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
+        String selectedMethod = sharedPref.getString("selectedMethod", "0");
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.prayer_methods, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        // Get the selected prayer method from SharedPreferences and set it in the spinner
-        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
-        String selectedMethod = sharedPref.getString("selectedMethod", "1");
-        int position = adapter.getPosition(selectedMethod);
-        spinner.setSelection(position);
 
-        // Handle spinner item selection
+        // Set a listener for item selection
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedMethod = parentView.getItemAtPosition(position).toString();
+                // Log the selected position when an item is selected
+
 
                 // Save selected prayer method in SharedPreferences
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("selectedMethod", selectedMethod);
                 editor.apply();
+                Log.d(TAG, "Selected position: " + position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // Do nothing here
-            }
-        });
-
-        // Get the "Save" button and add an OnClickListener to save data
-        Button saveButton = findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Save selected prayer method when the button is clicked
-                String selectedMethod = spinner.getSelectedItem().toString();
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("selectedMethod", selectedMethod);
-                editor.apply();
+                // Handle the case where nothing is selected
+                Log.d(TAG, "No item selected");
             }
         });
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        // Get the selected prayer method from SharedPreferences
-//        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
-//        String selectedMethod = sharedPref.getString("selectedMethod","");
-//
-//        // Send the selected prayer method back to MainActivity
-//        Intent intent = new Intent(this, MainActivity.class);
-//        intent.putExtra("selectedMethod", selectedMethod);
-//        startActivity(intent); // Start the activity
-//        finish(); // Finish the current activity
-//    }
 
 
     @Override
     public void onBackPressed() {
-        // Get the selected prayer method from SharedPreferences
-        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
-        String selectedMethod = sharedPref.getString("selectedMethod","");
+        int selectedPosition = spinner.getSelectedItemPosition();
+        Log.d(TAG, "Back button pressed. Selected position: " + selectedPosition);
 
-        // Send the selected prayer method back to MainActivity
+        // Create an intent to return the selected position to MainActivity
         Intent intent = new Intent();
-        intent.putExtra("selectedMethod", selectedMethod);
-        setResult(RESULT_OK, intent); // Set the result as OK
-        finish(); // Finish the current activity
+        intent.putExtra("selectedMethodIndex", selectedPosition);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 }

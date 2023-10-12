@@ -35,11 +35,11 @@ public class PrayerTimeAdapter extends RecyclerView.Adapter<PrayerTimeAdapter.Pr
     public void onBindViewHolder(@NonNull PrayerTimeViewHolder holder, int position) {
         PrayerTime prayerTime = prayerTimes.get(position);
         holder.tvDate.setText(prayerTime.getDate());
-        holder.tvFajr.setText(prayerTime.getFajr());
-        holder.tvDhuhr.setText(prayerTime.getDhuhr());
-        holder.tvAsr.setText(prayerTime.getAsr());
-        holder.tvMaghrib.setText(prayerTime.getMaghrib());
-        holder.tvIsha.setText(prayerTime.getIsha());
+        holder.tvFajr.setText("ফজর "+prayerTime.getFajr());
+        holder.tvDhuhr.setText("যোহর "+prayerTime.getDhuhr());
+        holder.tvAsr.setText("আছর "+prayerTime.getAsr());
+        holder.tvMaghrib.setText("মাগরিব "+prayerTime.getMaghrib());
+        holder.tvIsha.setText("ইশা "+prayerTime.getIsha());
         holder.tvHijriDay.setText(prayerTime.getHijriDay());
         holder.tvHijriMonth.setText(prayerTime.getHijriMonthEn());
         holder.tvHijriYear.setText(prayerTime.getHijriYear());

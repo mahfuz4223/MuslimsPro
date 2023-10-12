@@ -10,6 +10,6 @@ public interface PrayerTimeApiService {
     Call<PrayerTimeResponse> getPrayerTimes(
             @Query("latitude") double latitude,
             @Query("longitude") double longitude,
-            @Query("method") String method
+            @Query("method") int method
     );
 }
