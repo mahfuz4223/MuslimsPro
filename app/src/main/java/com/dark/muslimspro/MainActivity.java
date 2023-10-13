@@ -17,6 +17,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isAnimationRunning = false;
     private LinearLayoutManager layoutManager;
-    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn,settingsButton;
+    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn,kalimabtn,settingsButton;
 
     private CircularProgressBar nextTimeToGoProgress;
     private double latitude,longitude;
@@ -163,8 +164,10 @@ public class MainActivity extends AppCompatActivity {
         calanderView =  findViewById(R.id.calanderCard);
         compassCardView =  findViewById(R.id.compassCard);
         settingsButton =  findViewById(R.id.settingsac);
+        kalimabtn =  findViewById(R.id.kalima);
 
         namesbtn =  findViewById(R.id.namesbtn);
+
 
 
         requestQueue = Volley.newRequestQueue(this);
@@ -266,6 +269,17 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivityForResult(intent, SETTINGS_REQUEST_CODE);
 
+            }
+        });
+
+        kalimabtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to navigate to the CalendarActivity
+                Intent intent = new Intent(MainActivity.this, KalimaActivity.class);
+
+                // Start the new activity
+                startActivity(intent);
             }
         });
 

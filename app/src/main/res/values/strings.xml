@@ -22,8 +22,6 @@
     <string name="Hadith">Hadith</string>
 
 
-
-
     <string-array name="hijri_adjustment_options">
         <item>+2</item>
         <item>+1</item>
@@ -31,9 +29,6 @@
         <item>-1</item>
         <item>-2</item>
     </string-array>
-
-
-
 
 
     <string name="day" translatable="false">আজ </string>

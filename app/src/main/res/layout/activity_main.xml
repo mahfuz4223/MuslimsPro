@@ -375,7 +375,7 @@
                                 android:fontFamily="@font/bangla"
                                 android:gravity="center"
                                 android:maxLines="1"
-                                android:text="@string/next_prayer"
+                                 android:text="@string/next_prayer"
                                 android:textColor="@color/purple_500"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
