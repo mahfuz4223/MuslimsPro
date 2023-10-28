@@ -96,9 +96,8 @@
                 android:id="@+id/bangla_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="১৮ই আশ্বিন ১৪৩০"
-
                 android:fontFamily="@font/bangla"
+                android:text="১৮ই আশ্বিন ১৪৩০"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -107,10 +106,10 @@
                 android:id="@+id/hijri_holidays"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:text="১২ রবিউল আউয়াল "
                 android:textColor="@color/white"
                 android:textSize="18sp"
-                android:layout_marginStart="20dp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -167,9 +166,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
+                            android:fontFamily="@font/bangla"
                             android:maxLines="1"
                             android:text="00"
-                            android:fontFamily="@font/bangla"
                             android:textColor="@color/white"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -243,8 +242,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="@string/_00_00"
                                 android:fontFamily="@font/bangla"
+                                android:text="@string/_00_00"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
 
@@ -278,8 +277,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="@string/_00_00_"
                                 android:fontFamily="@font/bangla"
+                                android:text="@string/_00_00_"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </LinearLayout>
