@@ -63,6 +63,10 @@
     <string name="falgun" translatable="false">ফাল্গুন</string>
     <string name="falgun2" translatable="false">ফাল্গুন</string>
     <string name="choitro" translatable="false">চৈত্র</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="change_theme">Change Theme</string>
+    <string name="prayer_method">Prayer Method</string>
+
 
 
 </resources>

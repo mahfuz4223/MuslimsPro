@@ -259,7 +259,7 @@ public class BanglaDateConverter {
             }
         }
 
-        return ((convertToBanglaNumber(String.valueOf(banglaDay - 1))) + " " + Month + " " + (convertToBanglaNumber(String.valueOf(banglaYear))));
+        return ((convertToBanglaNumber(String.valueOf(banglaDay))) + " " + Month + " " + (convertToBanglaNumber(String.valueOf(banglaYear))));
     }
 
     public void main(String[] args) {

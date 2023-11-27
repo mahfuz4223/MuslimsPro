@@ -68,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/hakan"
                 android:text=" রবিউল আউয়াল "
+                android:visibility="gone"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -80,6 +81,7 @@
                 android:text="১৪৪৩ হিঃ"
                 android:textColor="@color/white"
                 android:textSize="20sp"
+                android:visibility="gone"
                 android:textStyle="bold" />
 
 
@@ -110,6 +112,7 @@
                 android:text="১২ রবিউল আউয়াল "
                 android:textColor="@color/white"
                 android:textSize="18sp"
+                android:visibility="gone"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -169,6 +172,7 @@
                             android:fontFamily="@font/bangla"
                             android:maxLines="1"
                             android:text="00"
+                            android:visibility="gone"
                             android:textColor="@color/white"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -202,7 +206,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
-                            android:text="@string/dahur"
+                            android:text="string/dahur"
                             android:textColor="@color/white"
                             android:textSize="25sp"
                             android:textStyle="bold" />
@@ -244,6 +248,7 @@
                                 android:layout_marginStart="5dp"
                                 android:fontFamily="@font/bangla"
                                 android:text="@string/_00_00"
+                                android:textSize="20dp"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
 
@@ -279,6 +284,7 @@
                                 android:layout_marginStart="5dp"
                                 android:fontFamily="@font/bangla"
                                 android:text="@string/_00_00_"
+                                android:textSize="20dp"
                                 android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </LinearLayout>

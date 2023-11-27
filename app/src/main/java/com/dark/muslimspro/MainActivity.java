@@ -1,9 +1,6 @@
 package com.dark.muslimspro;
 
-import static com.dark.muslimspro.tools.BanglaDateConverter.convertToBanglaNumber;
-
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,30 +14,28 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.batoulapps.adhan.CalculationMethod;
+import com.batoulapps.adhan.CalculationParameters;
+import com.batoulapps.adhan.Coordinates;
+import com.batoulapps.adhan.Madhab;
+import com.batoulapps.adhan.PrayerTimes;
+import com.batoulapps.adhan.data.DateComponents;
 import com.dark.muslimspro.AllahNames.AllahAr99NamAndFojilotMainActivity;
 import com.dark.muslimspro.Hadith.Hadith;
 import com.dark.muslimspro.Hadith.HadithManager;
 import com.dark.muslimspro.Hadith.JsonFileLoader;
 import com.dark.muslimspro.calander.CalendarActivity;
-import com.dark.muslimspro.prayertime.PrayerTimeAdapter;
-import com.dark.muslimspro.prayertime.PrayerTimeApiService;
-import com.dark.muslimspro.prayertime.PrayerTimeModel;
-import com.dark.muslimspro.prayertime.PrayerTimeResponse;
-import com.dark.muslimspro.prayertime.RetrofitClient;
 import com.dark.muslimspro.tools.BanglaDateConverter;
 import com.dark.muslimspro.tools.CircularProgressBar;
 import com.dark.muslimspro.tools.NetworkChangeReceiver;
@@ -64,844 +59,696 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
     private static final long MAX_COUNTDOWN_TIME = 360000;
     private static final int SETTINGS_REQUEST_CODE = 1;
+
     private static final String TAG = "MainActivity";
 
+//    private CalculationMethod selectedPrayerMethod = CalculationMethod.MUSLIM_WORLD_LEAGUE; // Default method
+////    private Madhab selectedMadhab = Madhab.HANAFI; // Default Madhab
 
-    private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text,fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;;
-    private TextView fajr_ends,dhuhr_ends,asr_ends,maghrib_ends,isha_ends;
+    private CalculationMethod selectedPrayerMethod;
+    private Madhab selectedMadhab;
 
+    // UI elements
+    private TextView locationText, sunriseText, sunsetText, hijri_holidays, nextPrayerTimeToGo, next_prayer_time, upcoming_prayer_name, current_prayer_time_name_Text, hidate_text, hijrimonth_text, hijriyear_text, fajrTime, dhuhrTime, asrTime, maghribTime, ishaTime;
+    private TextView fajr_ends, dhuhr_ends, asr_ends, maghrib_ends, isha_ends;
 
+    // Other variables
     private HadithManager hadithManager;
-    private TextView   hadithNameTextView, hadithDescriptionTextView ,hadithReferencesTextView,hadithGradeTextView;
-
+    private TextView hadithNameTextView, hadithDescriptionTextView, hadithReferencesTextView;
     private FusedLocationProviderClient fusedLocationClient;
     private RequestQueue requestQueue;
     private SharedPreferences sharedPreferences;
     private NetworkChangeReceiver networkChangeReceiver;
-    private List<PrayerTimeModel> prayerTimes = new ArrayList<>();
+    private Handler countdownHandler = new Handler();
+    private static final long COUNTDOWN_INTERVAL_MS = 1000;
 
-    // RecyclerView related variables
-    private RecyclerView recyclerView;
-    private PrayerTimeAdapter adapter;
-    private List<PrayerTimeModel> allPrayerTimes = new ArrayList<>();
-    private int currentPosition = 0;
-    private Handler handler = new Handler();
-
-    private boolean isAnimationRunning = false;
-    private LinearLayoutManager layoutManager;
-    private   MaterialCardView tasbihCardView, calanderView, compassCardView,namesbtn,kalimabtn,settingsButton;
-
+    private MaterialCardView tasbihCardView, calanderView, compassCardView, namesbtn, kalimabtn, settingsButton;
     private CircularProgressBar nextTimeToGoProgress;
-    private double latitude,longitude;
-    private String savedSelectedMethod;
+    private double latitude, longitude;
 
-
-    private Runnable runnable = new Runnable() {
+    private Runnable updateTimerRunnable = new Runnable() {
         @Override
         public void run() {
-            if (currentPosition < allPrayerTimes.size() - 1) {
-                currentPosition++;
-            } else {
-                currentPosition = 0;
-            }
-            recyclerView.smoothScrollToPosition(currentPosition);
-            handler.postDelayed(this, 3000); // Delay in milliseconds (3 seconds)
+            // Implement the code to update the timer here
+            // You can also use a handler to postDelayed for periodic updates
+            handler.postDelayed(this, 1000); // Update every 1 second (1000 milliseconds)
         }
     };
+
+
+
+    // Define your SharedPreferences keys
+    private static final String PREFS_NAME = "PrayerSettings";
+    private static final String PREF_PRAYER_METHOD = "PrayerMethod";
+    private static final String PREF_MADHAB = "Madhab";
+
+    private Handler handler = new Handler();
     private int selectedMethodIndex = 0;
 
+    private static final String HIJRI_JSON = "[\n" +
+            "  {\n" +
+            "    \"name\": \"Muharram\",\n" +
+            "    \"start\": \"2023-07-20\",\n" +
+            "    \"end\": \"2023-08-17\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Safar\",\n" +
+            "    \"start\": \"2023-08-18\",\n" +
+            "    \"end\": \"2023-09-16\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Rabi Al Awwal\",\n" +
+            "    \"start\": \"2023-09-17\",\n" +
+            "    \"end\": \"2023-10-16\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Rabi Ath-Thani\",\n" +
+            "    \"start\": \"2023-10-17\",\n" +
+            "    \"end\": \"2023-11-15\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Jumada Al Ula\",\n" +
+            "    \"start\": \"2023-11-16\",\n" +
+            "    \"end\": \"2023-12-14\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Jumada Al Akhirah\",\n" +
+            "    \"start\": \"2023-12-15\",\n" +
+            "    \"end\": \"2024-01-13\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Rajab\",\n" +
+            "    \"start\": \"2024-01-14\",\n" +
+            "    \"end\": \"2024-02-11\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Sha'ban\",\n" +
+            "    \"start\": \"2024-02-12\",\n" +
+            "    \"end\": \"2024-03-11\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Ramadan\",\n" +
+            "    \"start\": \"2024-03-12\",\n" +
+            "    \"end\": \"2024-04-10\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Shawwal\",\n" +
+            "    \"start\": \"2024-04-11\",\n" +
+            "    \"end\": \"2024-05-09\",\n" +
+            "    \"hijri_year\": \"1445\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Dhu l-Kada \",\n" +
+            "    \"start\": \"2023-05-22\",\n" +
+            "    \"end\": \"2023-06-19\",\n" +
+            "    \"hijri_year\": \"1444\"\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"name\": \"Dhu Al Hijjah\",\n" +
+            "    \"start\": \"2023-06-20\",\n" +
+            "    \"end\": \"2023-07-19\",\n" +
+            "    \"hijri_year\": \"1444\"\n" +
+            "  }\n" +
+            "]";
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
+        setContentView( R.layout.activity_main );
 
         // Initialize TextView elements
-        locationText = findViewById(R.id.location_text);
-        sunriseText = findViewById(R.id.sunrise);
-        sunsetText = findViewById(R.id.sunset);
-        upcoming_prayer_name = findViewById(R.id.upcoming_prayer_name);
-        hijri_holidays = findViewById(R.id.hijri_holidays);
-        next_prayer_time = findViewById(R.id.upcoming_prayer_time);
-        nextPrayerTimeToGo = findViewById(R.id.next_prayer_time_to_go);
-        hidate_text = findViewById(R.id.hijri_date);
-        hijrimonth_text = findViewById(R.id.hijri_month);
-        hijriyear_text = findViewById(R.id.hijri_year);
-        current_prayer_time_name_Text = findViewById(R.id.current_prayer_time_name);
+        locationText = findViewById( R.id.location_text );
+        sunriseText = findViewById( R.id.sunrise );
+        sunsetText = findViewById( R.id.sunset );
+        upcoming_prayer_name = findViewById( R.id.upcoming_prayer_name );
+        hijri_holidays = findViewById( R.id.hijri_holidays );
+        next_prayer_time = findViewById( R.id.upcoming_prayer_time );
+        nextPrayerTimeToGo = findViewById( R.id.next_prayer_time_to_go );
+        hidate_text = findViewById( R.id.hijri_date );
+        hijrimonth_text = findViewById( R.id.hijri_month );
+        hijriyear_text = findViewById( R.id.hijri_year );
+        current_prayer_time_name_Text = findViewById( R.id.current_prayer_time_name );
         // Initialize UI elements
-        nextTimeToGoProgress = findViewById(R.id.next_time_to_go_progress);
-        fajrTime = findViewById(R.id.fajr);
-        dhuhrTime = findViewById(R.id.dhuhr);
-        asrTime = findViewById(R.id.asr);
-        maghribTime = findViewById(R.id.maghrib);
-        ishaTime = findViewById(R.id.isha);
+        nextTimeToGoProgress = findViewById( R.id.next_time_to_go_progress );
+        fajrTime = findViewById( R.id.fajr );
+        dhuhrTime = findViewById( R.id.dhuhr );
+        asrTime = findViewById( R.id.asr );
+        maghribTime = findViewById( R.id.maghrib );
+        ishaTime = findViewById( R.id.isha );
 
-        fajr_ends = findViewById(R.id.fajr_end);
-        dhuhr_ends = findViewById(R.id.dhuhr_end);
-        asr_ends = findViewById(R.id.asr_end);
-        maghrib_ends = findViewById(R.id.maghrib_end);
-        isha_ends = findViewById(R.id.isha_end);
+        fajr_ends = findViewById( R.id.fajr_end );
+        dhuhr_ends = findViewById( R.id.dhuhr_end );
+        asr_ends = findViewById( R.id.asr_end );
+        maghrib_ends = findViewById( R.id.maghrib_end );
+        isha_ends = findViewById( R.id.isha_end );
 
 
         // Initialize your TextViews
-        hadithNameTextView = findViewById(R.id.hadithNameTextView);
-        hadithDescriptionTextView = findViewById(R.id.hadithDescriptionTextView);
-        hadithReferencesTextView = findViewById(R.id.hadithReferencesTextView);
-        hadithGradeTextView = findViewById(R.id.hadithGradeTextView);
-
+        hadithNameTextView = findViewById( R.id.hadithNameTextView );
+        hadithDescriptionTextView = findViewById( R.id.hadithDescriptionTextView );
+        hadithReferencesTextView = findViewById( R.id.hadithReferencesTextView );
+        // hadithGradeTextView = findViewById(R.id.hadithGradeTextView);
 
 
         // Find the MaterialCardView with ID "tasbih"
-        tasbihCardView = findViewById(R.id.tasbih);
-        calanderView =  findViewById(R.id.calanderCard);
-        compassCardView =  findViewById(R.id.compassCard);
-        settingsButton =  findViewById(R.id.settingsac);
-        kalimabtn =  findViewById(R.id.kalima);
+        tasbihCardView = findViewById( R.id.tasbih );
+        calanderView = findViewById( R.id.calanderCard );
+        compassCardView = findViewById( R.id.compassCard );
+        settingsButton = findViewById( R.id.settingsac );
+        kalimabtn = findViewById( R.id.kalima );
 
-        namesbtn =  findViewById(R.id.namesbtn);
-
-
-
-        requestQueue = Volley.newRequestQueue(this);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        sharedPreferences = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
+        namesbtn = findViewById( R.id.namesbtn );
 
 
+        requestQueue = Volley.newRequestQueue( this );
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient( this );
+        sharedPreferences = getSharedPreferences( "prayer_times", Context.MODE_PRIVATE );
 
 
+        try {
+            hidate_text.setText( getHijriDate( ) );
+        } catch ( JSONException | ParseException e ) {
+            hidate_text.setText( "Error in parsing date" );
+            e.printStackTrace( );
+        }
 
 
         // Initialize the NetworkChangeReceiver
-        networkChangeReceiver = new NetworkChangeReceiver(this);
+        networkChangeReceiver = new NetworkChangeReceiver( this );
 
 
         // Initialize HadithManager
-        hadithManager = new HadithManager(this);
+        hadithManager = new HadithManager( this );
 
         // Load and display the random hadith
-        loadAndDisplayRandomHadith();
+        loadAndDisplayRandomHadith( );
 
 
-        NetworkConnected();
+
+
+        NetworkConnected( );
 
         //bangla added
 
-        String banglaDate = BanglaDateConverter.pickBanglaDate();
+        String banglaDate = BanglaDateConverter.pickBanglaDate( );
 
         // Find the TextView for the Bangla date
-        TextView banglaDateTextView = findViewById(R.id.bangla_days); // Replace with your TextView's ID
+        TextView banglaDateTextView = findViewById( R.id.bangla_days ); // Replace with your TextView's ID
 
         // Update the TextView with the calculated Bangla date
-        banglaDateTextView.setText(banglaDate);
+        banglaDateTextView.setText( banglaDate );
+
+        // Start the timer to update the circular progress bar every second
+        handler.post( updateTimerRunnable );
+
+
+        // Get the prayer method and madhab from the shared preferences
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        selectedPrayerMethod = CalculationMethod.valueOf(prefs.getString(PREF_PRAYER_METHOD, CalculationMethod.MUSLIM_WORLD_LEAGUE.name()));
+        selectedMadhab = Madhab.valueOf(prefs.getString(PREF_MADHAB, Madhab.HANAFI.name()));
+
+        // Get the prayer method and madhab from the intent
+        if (getIntent() != null) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null) {
+                selectedPrayerMethod = CalculationMethod.valueOf(bundle.getString("PrayerMethod", CalculationMethod.MUSLIM_WORLD_LEAGUE.name()));
+                selectedMadhab = Madhab.valueOf(bundle.getString("Madhab", Madhab.HANAFI.name()));
+
+                // Save the selected values to SharedPreferences
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString(PREF_PRAYER_METHOD, selectedPrayerMethod.name());
+                editor.putString(PREF_MADHAB, selectedMadhab.name());
+                editor.apply();
+            }
+        }
+
+        // Display the current prayer method and madhab
+        String toastMessage = "Prayer Method: " + selectedPrayerMethod + ", Madhab: " + selectedMadhab;
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+
+
+
+
 
 
 
 
         // Set an OnClickListener on the tasbihCardView
-        tasbihCardView.setOnClickListener(new View.OnClickListener() {
+        tasbihCardView.setOnClickListener( new View.OnClickListener( ) {
             @Override
-            public void onClick(View v) {
+            public void onClick( View v ) {
                 // Create an Intent to navigate to the desired activity
-                Intent intent = new Intent(MainActivity.this, TasbihActivity.class);
+                Intent intent = new Intent( MainActivity.this, TasbihActivity.class );
 
                 // Start the new activity
-                startActivity(intent);
+                startActivity( intent );
             }
-        });
+        } );
 
-        calanderView.setOnClickListener(new View.OnClickListener() {
+//        calanderView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Create an Intent to navigate to the CalendarActivity
+//                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+//
+//                // Pass the latitude and longitude as extras
+//                intent.putExtra("latitude", latitude);
+//                intent.putExtra("longitude", longitude);
+//                intent.putExtra("selectedMethod",savedSelectedMethod);
+//
+//                // Start the new activity
+//                startActivity(intent);
+//            }
+//        });
+
+        compassCardView.setOnClickListener( new View.OnClickListener( ) {
             @Override
-            public void onClick(View v) {
+            public void onClick( View v ) {
                 // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
-
-                // Pass the latitude and longitude as extras
-                intent.putExtra("latitude", latitude);
-                intent.putExtra("longitude", longitude);
-                intent.putExtra("selectedMethod",savedSelectedMethod);
+                Intent intent = new Intent( MainActivity.this, QiblaActivity.class );
 
                 // Start the new activity
-                startActivity(intent);
+                startActivity( intent );
             }
-        });
+        } );
 
-        compassCardView.setOnClickListener(new View.OnClickListener() {
+        namesbtn.setOnClickListener( new View.OnClickListener( ) {
             @Override
-            public void onClick(View v) {
+            public void onClick( View v ) {
                 // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent(MainActivity.this, QiblaActivity.class);
+                Intent intent = new Intent( MainActivity.this, AllahAr99NamAndFojilotMainActivity.class );
 
                 // Start the new activity
-                startActivity(intent);
+                startActivity( intent );
             }
-        });
-
-        namesbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent(MainActivity.this, AllahAr99NamAndFojilotMainActivity.class);
-
-                // Start the new activity
-                startActivity(intent);
-            }
-        });
+        } );
 
         // Set an OnClickListener on the settingsButton to open the SettingActivity
-        settingsButton.setOnClickListener(new View.OnClickListener() {
+        settingsButton.setOnClickListener( new View.OnClickListener( ) {
             @Override
-            public void onClick(View v) {
-                // Create an Intent to navigate to the SettingActivity
-             //   Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            public void onClick( View v ) {
 
-                // Start the new activity with startActivityForResult
-                // Start the new activity
+                Intent intent = new Intent( MainActivity.this, SettingsActivity.class );
 
-
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivityForResult(intent, SETTINGS_REQUEST_CODE);
 
             }
-        });
+        } );
 
-        kalimabtn.setOnClickListener(new View.OnClickListener() {
+        kalimabtn.setOnClickListener( new View.OnClickListener( ) {
             @Override
-            public void onClick(View v) {
+            public void onClick( View v ) {
                 // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent(MainActivity.this, KalimaActivity.class);
+                Intent intent = new Intent( MainActivity.this, KalimaActivity.class );
 
                 // Start the new activity
-                startActivity(intent);
+                startActivity( intent );
             }
-        });
+        } );
 
 
-
-
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        if ( ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE );
         } else {
             // Request location updates
 
-            getLocation();
+            getLocation( );
         }
-
-
-
-
-
-        // If there is no network connection, retrieve data from SharedPreferences
-        retrieveDataFromSharedPreferences();
 
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                int selectedMethodIndex = data.getIntExtra("selectedMethodIndex", -1);
+    private String getHijriDate( ) throws JSONException, ParseException {
+        JSONArray hijriMonths = new JSONArray( HIJRI_JSON );
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd" );
+        Date today = new Date( );
 
-                if (selectedMethodIndex != -1) {
-                    // Store the selectedMethodIndex in a class variable for later use
-                    this.selectedMethodIndex = selectedMethodIndex;
+        for ( int i = 0; i < hijriMonths.length( ); i++ ) {
+            JSONObject month = hijriMonths.getJSONObject( i );
+            Date startDate = sdf.parse( month.getString( "start" ) );
+            Date endDate = sdf.parse( month.getString( "end" ) );
 
-                    // Now you have the selectedMethodIndex available for use
-                    Log.d(TAG, "Selected Method Index: " + selectedMethodIndex);
+            if ( !today.before( startDate ) && !today.after( endDate ) ) {
+                // Calculate Hijri date
+                long difference = today.getTime( ) - startDate.getTime( );
+                int days = ( int ) ( difference / ( 24 * 60 * 60 * 1000 ) ) + 1; // +1 for inclusive count
 
-                    // You can also call the getLocation method here if needed
-                    getLocation();
-                }
+                return days + "  " + month.getString( "name" ) + "  " + month.getString( "hijri_year" );
             }
         }
+
+        return "Hijri date not found";
     }
 
-    // Modify the getLocation method to use selectedMethodIndex
-    public void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+
+    public void getLocation( ) {
+        if ( ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE );
         } else {
             // Request location updates
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, location -> {
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
+            fusedLocationClient.getLastLocation( )
+                    .addOnSuccessListener( this, location -> {
+                        if ( location != null ) {
+                            latitude = location.getLatitude( );
+                            longitude = location.getLongitude( );
 
                             // Fetch and update location text
-                            String address = getAddressFromCoordinates(this, latitude, longitude);
-                            locationText.setText(address);
+                            String address = getAddressFromCoordinates( this, latitude, longitude );
+                            locationText.setText( address );
 
                             // Use the stored selectedMethodIndex here
-                            Log.d(TAG, "Selected Method Index in getLocation: " + selectedMethodIndex);
+                            Log.d( TAG, "Selected Method Index in getLocation: " + selectedMethodIndex );
 
                             // Call fetchLocationAndPrayerTimeData with the selectedMethodIndex
 
 
-
-                            fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethodIndex);
+                            calculateAndDisplayPrayerTimes( latitude, longitude );
                         } else {
-                            Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+                            Toast.makeText( this, "Location not available", Toast.LENGTH_SHORT ).show( );
                         }
-                    });
+                    } );
+        }
+    }
+
+    private void calculateAndDisplayPrayerTimes( double latitude, double longitude ) {
+        // Get prayer times and end times
+        PrayerTimes prayerTimes = calculatePrayerTimes( latitude, longitude, selectedPrayerMethod, selectedMadhab );
+        if ( prayerTimes != null ) {
+            displayPrayerTimes( prayerTimes );
+            displayEndTimes( prayerTimes );
+            determineUpcomingPrayer( prayerTimes );
+            updateCircularProgressBar( prayerTimes );
+        } else {
+            // Handle error or inform the user
+
+            Toast.makeText( getApplicationContext( ), "Failed to calculate prayer times. Please check your settings", Toast.LENGTH_SHORT ).show( );
+
         }
     }
 
 
-
-
-
-//    public void getLocation() {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return;
+//    private PrayerTimes calculatePrayerTimes(double latitude, double longitude) {
+//        Coordinates coordinates = new Coordinates(latitude, longitude);
+//        DateComponents dateComponents = DateComponents.from(new Date());
+//
+//        CalculationParameters params = CalculationMethod.MUSLIM_WORLD_LEAGUE.getParameters();
+//        params.madhab = Madhab.HANAFI; // If you follow a specific Madhab
+//
+//        try {
+//            return new PrayerTimes(coordinates, dateComponents, params);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
 //        }
-//        fusedLocationClient.getLastLocation()
-//                .addOnSuccessListener(this, location -> {
-//                    if (location != null) {
-//                        latitude = location.getLatitude();
-//                        longitude = location.getLongitude();
-//
-//                        // Fetch and update location text
-//                        String address = getAddressFromCoordinates(this, latitude, longitude);
-//                        locationText.setText(address);
-//
-//                        int selectedMethod = getIntent().getIntExtra("selectedMethodIndex", 0);
-//
-//                        //Toast.makeText(this, selectedMethod, Toast.LENGTH_SHORT).show();
-//
-////                        SharedPreferences sharedPref = getSharedPreferences("prayer_times", Context.MODE_PRIVATE);
-////                        String selectedMethod = sharedPref.getString("selectedMethod", "");
-//                       Log.d("MainActivity", "Selected Method: " + selectedMethod);
-//
-//                        // Call fetchLocationAndPrayerTimeData with the selectedMethod
-//                        fetchLocationAndPrayerTimeData(latitude, longitude, selectedMethod);
-//
-//
-//                    } else {
-//                        Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
 //    }
 
+    // Function to calculate prayer times with updated method and Madhab
+    private PrayerTimes calculatePrayerTimes( double latitude, double longitude, CalculationMethod method, Madhab madhab ) {
+        Coordinates coordinates = new Coordinates( latitude, longitude );
+        DateComponents dateComponents = DateComponents.from( new Date( ) );
 
+        CalculationParameters params = method.getParameters( );
+        params.madhab = madhab;
 
-
-
-
-
-    private void fetchLocationAndPrayerTimeData(double latitude, double longitude, int selectedMethodIndex) {
-        // Fetch prayer time data using RetrofitClient and update UI
-        RetrofitClient.getClient().create(PrayerTimeApiService.class)
-                .getPrayerTimes(latitude, longitude, selectedMethodIndex)
-                .enqueue(new Callback<PrayerTimeResponse>() {
-                    @Override
-                    public void onResponse(@NonNull Call<PrayerTimeResponse> call, @NonNull Response<PrayerTimeResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            PrayerTimeResponse prayerTimeResponse = response.body();
-                            String sunriseTime = prayerTimeResponse.getData().getTimings().getSunrise();
-                            String sunsetTime = prayerTimeResponse.getData().getTimings().getSunset();
-                            String hijri_date = prayerTimeResponse.getData().getDate().getHijri().getDay();
-                            String hijri_month = prayerTimeResponse.getData().getDate().getHijri().getMonth().getEn();
-                            String hijri_year = prayerTimeResponse.getData().getDate().getHijri().getYear();
-
-//                            String fajr = prayerTimeResponse.getData().getTimings().getFajr();
-//                            String dhuhr = prayerTimeResponse.getData().getTimings().getDhuhr();
-//                            String asr = prayerTimeResponse.getData().getTimings().getAsr();
-//                            String magrib = prayerTimeResponse.getData().getTimings().getMaghrib();
-//                            String isha = prayerTimeResponse.getData().getTimings().getIsha();
-
-                            sunriseText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunriseTime)));
-                            sunsetText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunsetTime)));
-
-                            String[] hijri_holiday = prayerTimeResponse.getData().getDate().getHijri().getHolidays();
-
-                            if (hijri_holiday != null && hijri_holiday.length > 0) {
-                                hijri_holidays.setText(hijri_holiday[0]);
-                                hijri_holidays.setVisibility(View.VISIBLE);
-                            } else {
-                                hijri_holidays.setVisibility(View.GONE);
-                            }
-
-                            // Convert hijri_date to an integer and subtract 1
-                            try {
-                                int hijriDay = Integer.parseInt(hijri_date);
-                                hijriDay--; // Subtract 1 from the Hijri day
-                                hijri_date = String.valueOf(hijriDay); // Convert it back to a string
-                            } catch (NumberFormatException e) {
-                                // Handle the case where hijri_date is not a valid integer
-                                e.printStackTrace();
-                            }
-
-                            hidate_text.setText(BanglaDateConverter.convertToBanglaNumber(hijri_date));
-                            hijrimonth_text.setText(" " + hijri_month);
-                            hijriyear_text.setText(BanglaDateConverter.convertToBanglaNumber(" " + hijri_year));
-
-                            // Adjust prayer times
-                            adjustPrayerTimes(prayerTimeResponse);
-
-                            // Calculate and display current and upcoming prayer times
-                            calculateAndDisplayPrayerTimes(prayerTimeResponse);
-
-
-                            calculateEndtime(prayerTimeResponse);
-
-
-
-
-                            // Save the data to SharedPreferences
-                            saveDataToSharedPreferences(sunriseTime, sunsetTime, hijri_date, hijri_month, hijri_year, hijri_holiday);
-                        } else {
-                            Toast.makeText(MainActivity.this, "Failed to fetch prayer times", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<PrayerTimeResponse> call, @NonNull Throwable t) {
-                        Toast.makeText(MainActivity.this, "Network request failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
-
-
-    private String adjustPrayerTime(String prayerTime, int minutesToAddOrSubtract) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            Date prayerTimeDate = sdf.parse(prayerTime);
-
-            Calendar calendar = Calendar.getInstance();
-            assert prayerTimeDate != null;
-            calendar.setTime(prayerTimeDate);
-
-            // Add or subtract minutes from the prayer time
-            calendar.add(Calendar.MINUTE, minutesToAddOrSubtract);
-
-            // Format the updated time back to a string in HH:mm format
-
-            return sdf.format(calendar.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return prayerTime; // Return the original time in case of an error
+            return new PrayerTimes( coordinates, dateComponents, params );
+        } catch ( Exception e ) {
+            e.printStackTrace( );
+            return null;
         }
     }
 
-    private void adjustPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
-
-        // Get the original prayer times
-        String fajr = prayerTimeResponse.getData().getTimings().getFajr();
-        String dhuhr = prayerTimeResponse.getData().getTimings().getDhuhr();
-        String asr = prayerTimeResponse.getData().getTimings().getAsr();
-        String magrib = prayerTimeResponse.getData().getTimings().getMaghrib();
-        String isha = prayerTimeResponse.getData().getTimings().getIsha();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
-
-        // Update the TextViews with the adjusted prayer times
-        // Update the TextViews with adjusted prayer times using convertToBanglaNumber
-        fajrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(fajr)));
-        dhuhrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(dhuhr)));
-        asrTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(asr)));
-        maghribTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(magrib)));
-        ishaTime.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(isha)));
+    private void displayPrayerTimes( PrayerTimes prayerTimes ) {
+        // Display the five daily prayers
+        fajrTime.setText( formatTime( prayerTimes.fajr ) );
+        dhuhrTime.setText( formatTime( prayerTimes.dhuhr ) );
+        asrTime.setText( formatTime( prayerTimes.asr ) );
+        maghribTime.setText( formatTime( prayerTimes.maghrib ) );
+        ishaTime.setText( formatTime( prayerTimes.isha ) );
+        sunriseText.setText( formatTime( prayerTimes.sunrise ) );
+        sunsetText.setText( formatTime( prayerTimes.maghrib ) );
     }
 
-    private void calculateEndtime(PrayerTimeResponse prayerTimeResponse) {
+    private void displayEndTimes( PrayerTimes prayerTimes ) {
+        // Display the end times for Dhuhr, Asr, Maghrib, and Isha
+        fajr_ends.setText( formatTime( prayerTimes.sunrise ) );
+        dhuhr_ends.setText( formatTime( prayerTimes.asr ) ); // Dhuhr ends when Asr starts
+        asr_ends.setText( formatTime( prayerTimes.maghrib ) ); // Asr ends when Maghrib starts
+        maghrib_ends.setText( formatTime( prayerTimes.isha ) ); // Maghrib ends when Isha starts
 
-        String fajr_end = prayerTimeResponse.getData().getTimings().getFajr();
-        String dhuhr_end = prayerTimeResponse.getData().getTimings().getDhuhr();
-        String asr_end = prayerTimeResponse.getData().getTimings().getAsr();
-        String maghrib_end = prayerTimeResponse.getData().getTimings().getMaghrib();
-        String isha_end = prayerTimeResponse.getData().getTimings().getIsha();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
-        // Adjust the prayer times
-        fajr_end = adjustPrayerTime(fajr_end, 61);     // Add 47 minutes to Fajr
-        dhuhr_end = adjustPrayerTime(dhuhr_end, 254);   // Add 249 minutes to Dhuhr
-        asr_end = adjustPrayerTime(asr_end, 149);       // Add 98 minutes to Asr
-        maghrib_end = adjustPrayerTime(maghrib_end, 74);  // Add 71 minutes to Maghrib
-        isha_end = adjustPrayerTime(isha_end, 588);
-
-//        fajr_end = adjustPrayerTime(fajr_end, 74);     // Add 47 minutes to Fajr
-//        dhuhr_end = adjustPrayerTime(dhuhr_end, 249);   // Add 249 minutes to Dhuhr
-//        asr_end = adjustPrayerTime(asr_end, 98);       // Add 98 minutes to Asr
-//        maghrib_end = adjustPrayerTime(maghrib_end, 71);  // Add 71 minutes to Maghrib
-//        isha_end = adjustPrayerTime(isha_end, 580);     // Add 580 minutes to Isha
-
-        fajr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(fajr_end)));
-        dhuhr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(dhuhr_end)));
-        asr_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(asr_end)));
-        maghrib_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(maghrib_end)));
-        isha_ends.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(isha_end)));
-
-
-
-
-        // Calculate time remaining until the end of the current prayer and update the progress bar
-        String currentPrayerEndTime = getCurrentPrayerEndTime();
-        long timeRemaining = getTimeDifference(getCurrentTime(), currentPrayerEndTime);
-        updateNextTimeToGoProgress(timeRemaining);
-
+        // Calculate and display Isha end time (midnight)
+        long maghribMillis = prayerTimes.maghrib.getTime( );
+        long fajrMillis = prayerTimes.fajr.getTime( );
+        long midnightMillis = maghribMillis + ( fajrMillis - maghribMillis ) / 2;
+        isha_ends.setText( formatTime( new Date( midnightMillis ) ) );
     }
 
+    private void determineUpcomingPrayer( PrayerTimes prayerTimes ) {
+        Date now = new Date( );
 
+        // Check if it's Friday (Jumu'ah)
+        Calendar calendar = Calendar.getInstance( );
+        calendar.setTime( now );
+        int dayOfWeek = calendar.get( Calendar.DAY_OF_WEEK );
 
-
-
-
-
-    private void calculateAndDisplayPrayerTimes(PrayerTimeResponse prayerTimeResponse) {
-        List<PrayerTimeModel> prayerTimes = calculatePrayerTimes(prayerTimeResponse);
-        // Get the current time
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        String currentTime = sdf.format(new Date());
-        // Find the current and upcoming prayer times
-        PrayerTimeModel currentPrayer = null;
-        PrayerTimeModel upcomingPrayer = null;
-        for (PrayerTimeModel prayer : prayerTimes) {
-            String prayerTime = prayer.getStartTime();
-            // Compare the current time with each prayer time
-            try {
-                Date current = sdf.parse(currentTime);
-                Date prayerTimeDate = sdf.parse(prayerTime);
-                if (current.before(prayerTimeDate)) {
-                    if (prayer.getPrayerName().equals("Lastthird")) {
-                        upcomingPrayer = new PrayerTimeModel("Tahajjud", prayerTime, "", "Name", prayerTime);
-                    } else {
-                        upcomingPrayer = prayer;
-                    }
-                    break;
-                } else {
-                    currentPrayer = prayer;
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+        if ( dayOfWeek == Calendar.FRIDAY ) {
+            // It's Friday, so Jumu'ah prayer is upcoming
+            upcoming_prayer_name.setText( "Jumu'ah" );
+            return;
         }
-        // Display the current and upcoming prayer times
-        if (currentPrayer != null && upcomingPrayer != null) {
-            String currentTimes = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()); // Get the current time
-            String upcomingPrayerTime = upcomingPrayer.getStartTime();
-            long timeRemaining = getTimeDifference(currentTimes, upcomingPrayerTime);
-            if (timeRemaining > 0) {
-                // Calculate progress based on the time remaining
-                int maxProgress = (int) timeRemaining; // Maximum progress value
-                int progress = (int) ((timeRemaining / (float) MAX_COUNTDOWN_TIME) * maxProgress);
-                // Set the progress for nextTimeToGoProgress
-                nextTimeToGoProgress.setProgress(progress);
-                // Start the countdown timer
-                startCountdownTimer(timeRemaining);
-            } else {
-                // Set the progress to 100% if the prayer time has passed
-                nextTimeToGoProgress.setProgress(100);
-                nextPrayerTimeToGo.setText("Prayer time has passed");
-            }
-            current_prayer_time_name_Text.setText(currentPrayer.getPrayerName());
-            upcoming_prayer_name.setText(upcomingPrayer.getPrayerName());
-            next_prayer_time.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(upcomingPrayerTime)));
+
+        // Check if it's time for Tahajjud (between Isha and Fajr)
+        Date ishaTime = prayerTimes.isha;
+        Date fajrTime = prayerTimes.fajr;
+
+        if ( now.after( ishaTime ) && now.before( fajrTime ) ) {
+            // It's time for Tahajjud
+            upcoming_prayer_name.setText( "Tahajjud" );
+            return;
+        }
+
+        // Determine the next regular prayer
+        if ( now.before( prayerTimes.fajr ) ) {
+            current_prayer_time_name_Text.setText( "Tahajjud" );
+            upcoming_prayer_name.setText( "Fajr" );
+
+        } else if ( now.before( prayerTimes.dhuhr ) ) {
+            current_prayer_time_name_Text.setText( "Fajr" );
+            upcoming_prayer_name.setText( "Dhuhr" );
+
+        } else if ( now.before( prayerTimes.asr ) ) {
+            current_prayer_time_name_Text.setText( "Dhuhr" );
+            upcoming_prayer_name.setText( "Asr" );
+
+        } else if ( now.before( prayerTimes.maghrib ) ) {
+            current_prayer_time_name_Text.setText( "Asr" );
+            upcoming_prayer_name.setText( "Maghrib" );
+
         } else {
-            current_prayer_time_name_Text.setText("No prayer");
-            upcoming_prayer_name.setText("No prayer");
-            next_prayer_time.setText("");
-            // Set the progress to 0 if there is no upcoming prayer
-            nextTimeToGoProgress.setProgress(0);
+            current_prayer_time_name_Text.setText( "Maghrib" );
+            upcoming_prayer_name.setText( "Isha" );
         }
     }
 
 
-    private String getCurrentPrayerEndTime() {
-        // Implement logic to determine the current prayer and its end time
-        // ...
+    private void updateCircularProgressBar( PrayerTimes prayerTimes ) {
+        Date now = new Date( );
 
-        return ""; // Return the end time of the current prayer
-    }
+        // Calculate time differences for the current and next prayers in seconds
+        long currentTimeMillis = now.getTime( );
+        long currentPrayerMillis = 0;
+        long nextPrayerMillis = 0;
 
-    private String getCurrentTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        return sdf.format(new Date());
-    }
+        // Determine the current and next prayer times
+        if ( now.before( prayerTimes.fajr ) ) {
+            currentPrayerMillis = 0; // Before Fajr
+            nextPrayerMillis = ( prayerTimes.fajr.getTime( ) - currentTimeMillis ) / 1000; // Convert to seconds
+        } else if ( now.before( prayerTimes.dhuhr ) ) {
+            currentPrayerMillis = ( currentTimeMillis - prayerTimes.fajr.getTime( ) ) / 1000; // Convert to seconds
+            nextPrayerMillis = ( prayerTimes.dhuhr.getTime( ) - currentTimeMillis ) / 1000; // Convert to seconds
+        } else if ( now.before( prayerTimes.asr ) ) {
+            currentPrayerMillis = ( currentTimeMillis - prayerTimes.dhuhr.getTime( ) ) / 1000; // Convert to seconds
+            nextPrayerMillis = ( prayerTimes.asr.getTime( ) - currentTimeMillis ) / 1000; // Convert to seconds
+        } else if ( now.before( prayerTimes.isha ) ) {
+            currentPrayerMillis = ( currentTimeMillis - prayerTimes.maghrib.getTime( ) ) / 1000; // Convert to seconds
+            nextPrayerMillis = ( prayerTimes.isha.getTime( ) - currentTimeMillis ) / 1000; // Convert to seconds
+        } else {
+            // Handle the case where it's after Isha (possibly for the next day)
+            // Calculate the time difference until the next day's Fajr
+            currentPrayerMillis = ( currentTimeMillis - prayerTimes.isha.getTime( ) ) / 1000; // Convert to seconds
+            nextPrayerMillis = ( prayerTimes.fajr.getTime( ) + ( 24 * 60 * 60 * 1000 ) - currentTimeMillis ) / 1000; // Convert to seconds
+        }
 
-    private void updateNextTimeToGoProgress(long milliseconds) {
-        // Calculate progress based on the time remaining
-        int maxProgress = (int) milliseconds;
-        int progress = (int) ((milliseconds / (float) MAX_COUNTDOWN_TIME) * maxProgress);
+        // Calculate progress percentages
+        int currentProgress = ( int ) ( ( currentPrayerMillis * 100 ) / ( nextPrayerMillis + currentPrayerMillis ) );
 
-        // Set the progress for nextTimeToGoProgress
-        nextTimeToGoProgress.setProgress(progress);
+        // Update the CircularProgressBar
+        nextTimeToGoProgress.setProgress( currentProgress );
 
         // Start the countdown timer
-        startCountdownTimer(milliseconds);
+        startCountdownTimer( nextPrayerMillis );
+    }
+
+    private void startCountdownTimer( long countdownMillis ) {
+        new CountDownTimer( countdownMillis * 1000, 1000 ) {
+            public void onTick( long millisUntilFinished ) {
+                long hours = millisUntilFinished / 3600000;
+                long minutes = ( millisUntilFinished % 3600000 ) / 60000;
+                long seconds = ( millisUntilFinished % 60000 ) / 1000;
+
+                // Update the TextView to display the time information
+                nextPrayerTimeToGo.setText( String.format( Locale.getDefault( ), "%02d:%02d:%02d", hours, minutes, seconds ) );
+            }
+
+            public void onFinish( ) {
+                // Handle any actions when the countdown timer finishes
+            }
+        }.start( );
     }
 
 
+    @Override
+    protected void onDestroy( ) {
+        super.onDestroy( );
 
-    private List<PrayerTimeModel> calculatePrayerTimes(PrayerTimeResponse prayerTimeResponse) {
-        List<PrayerTimeModel> prayerTimes = new ArrayList<>();
-
-        PrayerTimeResponse.Timings timings = prayerTimeResponse.getData().getTimings();
-
-        // Get prayer times from the response
-        String fajrTime = timings.getFajr();
-        String dhuhrTime = timings.getDhuhr();
-        String asrTime = timings.getAsr();
-        String maghribTime = timings.getMaghrib();
-        String ishaTime = timings.getIsha();
-        String midnightTime = timings.getMidnight();
-        String lastthirdTime = timings.getLastthird();
-
-        // Create PrayerTimeModel objects and add them to the list
-        prayerTimes.add(new PrayerTimeModel("Fajr", fajrTime, "", "Name", fajrTime));
-        prayerTimes.add(new PrayerTimeModel("Dhuhr", dhuhrTime, "", "Name", dhuhrTime));
-        prayerTimes.add(new PrayerTimeModel("Asr", asrTime, "", "Name", asrTime));
-        prayerTimes.add(new PrayerTimeModel("Maghrib", maghribTime, "", "Name", maghribTime));
-        prayerTimes.add(new PrayerTimeModel("Isha", ishaTime, "", "Name", ishaTime));
-        prayerTimes.add(new PrayerTimeModel("Midnight", midnightTime, "", "Name", midnightTime));
-        prayerTimes.add(new PrayerTimeModel("Lastthird", lastthirdTime, "", "Name", lastthirdTime));
-
-        return prayerTimes;
+        // Stop the timer when the activity is destroyed to prevent memory leaks
+        handler.removeCallbacks( updateTimerRunnable );
     }
 
-    public static String getAddressFromCoordinates(MainActivity context, double latitude, double longitude) {
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+    private String formatTime( Date date ) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat( "hh:mm", Locale.getDefault( ) );
+        return dateFormat.format( date );
+    }
+
+
+    public static String getAddressFromCoordinates( MainActivity context, double latitude, double longitude ) {
+        Geocoder geocoder = new Geocoder( context, Locale.getDefault( ) );
         String addressText = "";
 
         try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            List< Address > addresses = geocoder.getFromLocation( latitude, longitude, 1 );
 
-            if (addresses != null && addresses.size() > 0) {
-                Address address = addresses.get(0);
+            if ( addresses != null && addresses.size( ) > 0 ) {
+                Address address = addresses.get( 0 );
 
-                String upazila = address.getSubLocality(); // Upazila name
-                String district = address.getLocality(); // District name
-                String country = address.getCountryName(); // Country name
+                String upazila = address.getSubLocality( ); // Upazila name
+                String district = address.getLocality( ); // District name
+                String country = address.getCountryName( ); // Country name
 
-                if (upazila != null && !upazila.isEmpty()) {
+                if ( upazila != null && !upazila.isEmpty( ) ) {
                     addressText += upazila + ", ";
                 }
 
-                if (district != null && !district.isEmpty()) {
+                if ( district != null && !district.isEmpty( ) ) {
                     addressText += district;
                 }
 
-                if (!addressText.isEmpty()) {
+                if ( !addressText.isEmpty( ) ) {
                     addressText += ", ";
                 }
 
-                if (country != null && !country.isEmpty()) {
+                if ( country != null && !country.isEmpty( ) ) {
                     addressText += country;
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch ( IOException e ) {
+            e.printStackTrace( );
         }
 
         return addressText;
     }
 
-    public String convertTo12HourFormat(String time) {
-        try {
-            SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            SimpleDateFormat sdf12 = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-            Date date = sdf24.parse(time);
-            return sdf12.format(date);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return time;
-        }
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onRequestPermissionsResult( int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults ) {
+        super.onRequestPermissionsResult( requestCode, permissions, grantResults );
 
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if ( requestCode == LOCATION_PERMISSION_REQUEST_CODE ) {
+            if ( grantResults.length > 0 && grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
 
-             getLocation();
+                getLocation( );
             } else {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText( this, "Location permission denied", Toast.LENGTH_SHORT ).show( );
             }
         }
     }
 
-    private void saveDataToSharedPreferences(String sunriseTime, String sunsetTime, String hijri_date, String hijri_month, String hijri_year, String[] hijri_holiday) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("sunriseTime", sunriseTime);
-        editor.putString("sunsetTime", sunsetTime);
-        editor.putString("hijriDate", hijri_date);
-        editor.putString("hijriMonth", hijri_month);
-        editor.putString("hijriYear", hijri_year);
-
-        if (hijri_holiday != null && hijri_holiday.length > 0) {
-            editor.putString("hijriHoliday", hijri_holiday[0]);
-        } else {
-            editor.remove("hijriHoliday");
-        }
-
-        editor.apply();
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void retrieveDataFromSharedPreferences() {
-        String sunriseTime = sharedPreferences.getString("sunriseTime", "");
-        String sunsetTime = sharedPreferences.getString("sunsetTime", "");
-        String hijri_date = sharedPreferences.getString("hijriDate", "" );
-        String hijri_month = sharedPreferences.getString("hijriMonth", "");
-        String hijri_year = sharedPreferences.getString("hijriYear", "");
-        String hijri_holiday = sharedPreferences.getString("hijriHoliday", "");
-        String savedLocationText = sharedPreferences.getString("locationText", "");
-
-
-        String savedSelectedMethod = sharedPreferences.getString("selectedMethod", "");
-
-
-        // Update the TextViews or UI elements with the retrieved data
-        sunriseText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunriseTime)));
-        sunsetText.setText(BanglaDateConverter.convertToBanglaNumber(convertTo12HourFormat(sunsetTime)));
-        hidate_text.setText(BanglaDateConverter.convertToBanglaNumber(hijri_date));
-        hijrimonth_text.setText(" " + hijri_month);
-        hijriyear_text.setText(BanglaDateConverter.convertToBanglaNumber(" " + hijri_year));
-        hijri_holidays.setText(hijri_holiday);
-        locationText.setText(savedLocationText);
-
-        // You can use this retrieved data in your UI as needed
-    }
-
-    private boolean NetworkConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null) {
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    private boolean NetworkConnected( ) {
+        ConnectivityManager connectivityManager = ( ConnectivityManager ) getSystemService( Context.CONNECTIVITY_SERVICE );
+        if ( connectivityManager != null ) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo( );
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected( );
         }
         return false;
     }
 
-    // Add this method to calculate the time difference in milliseconds
-    private long getTimeDifference(String startTime, String endTime) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        try {
-            Date startDate = sdf.parse(startTime);
-            Date endDate = sdf.parse(endTime);
-            long diff = endDate.getTime() - startDate.getTime();
-            if (diff < 0) {
-                // Add 24 hours if the end time is before the start time (crosses midnight)
-                diff += 24 * 60 * 60 * 1000;
-            }
-            return diff;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
 
-    // Add this method to start the countdown timer
-    private void startCountdownTimer(long milliseconds) {
-        CountDownTimer timer = new CountDownTimer(milliseconds, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                long secondsRemaining = millisUntilFinished / 1000;
-
-                long hours = secondsRemaining / 3600;
-                long minutes = (secondsRemaining % 3600) / 60;
-                long seconds = secondsRemaining % 60;
-
-                String timeRemaining = String.format(Locale.getDefault(), "%02d : %02d : %02d ", hours, minutes, seconds);
-
-                // Update both the TextView and CircularProgressBar
-                nextPrayerTimeToGo.setText(BanglaDateConverter.convertToBanglaNumber(timeRemaining));
-
-
-                int progress = (int) ((millisUntilFinished / 1000) / 60); // Convert to minutes
-                nextTimeToGoProgress.setProgress(progress);
-
-            }
-
-            @Override
-            public void onFinish() {
-                nextPrayerTimeToGo.setText("Prayer time has arrived");
-            }
-        };
-        timer.start();
-    }
-
-
-
-
-
-
-
-
-
-    private void loadAndDisplayRandomHadith() {
+    private void loadAndDisplayRandomHadith( ) {
         // Load JSON data from your db.json file
-        String jsonString = JsonFileLoader.loadJSONFromAsset(this, "db.json");
+        String jsonString = JsonFileLoader.loadJSONFromAsset( this, "db.json" );
 
         try {
-            if (jsonString != null && !jsonString.isEmpty()) {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                JSONArray hadithsArray = jsonObject.getJSONArray("hadiths");
+            if ( jsonString != null && !jsonString.isEmpty( ) ) {
+                JSONObject jsonObject = new JSONObject( jsonString );
+                JSONArray hadithsArray = jsonObject.getJSONArray( "hadiths" );
 
                 // Deserialize JSON data into a list of Hadith objects using Gson
-                Type listType = new TypeToken<ArrayList<Hadith>>() {}.getType();
-                ArrayList<Hadith> hadithList = new Gson().fromJson(hadithsArray.toString(), listType);
+                Type listType = new TypeToken< ArrayList< Hadith > >( ) {
+                }.getType( );
+                ArrayList< Hadith > hadithList = new Gson( ).fromJson( hadithsArray.toString( ), listType );
 
-                if (!hadithList.isEmpty()) {
+                if ( !hadithList.isEmpty( ) ) {
                     // Get a random hadith using HadithManager
-                    Hadith randomHadith = hadithManager.getRandomHadith(hadithList);
+                    Hadith randomHadith = hadithManager.getRandomHadith( hadithList );
 
                     // Display the random hadith in the TextViews
-                    if (randomHadith != null) {
+                    if ( randomHadith != null ) {
                         // Update the TextViews with the hadith information
-                        hadithNameTextView.setText(randomHadith.getName());
-                        hadithDescriptionTextView.setText(randomHadith.getDescription());
-                        hadithReferencesTextView.setText(randomHadith.getReferences());
-                       // hadithGradeTextView.setText("Grade: " + randomHadith.getGrade());
+                        hadithNameTextView.setText( randomHadith.getName( ) );
+                        hadithDescriptionTextView.setText( randomHadith.getDescription( ) );
+                        hadithReferencesTextView.setText( randomHadith.getReferences( ) );
+                        // hadithGradeTextView.setText("Grade: " + randomHadith.getGrade());
                     } else {
                         // Handle the case where randomHadith is null
-                        Log.e("RandomHadithError", "Random Hadith is null");
-                        showToast("Failed to load a random Hadith. Please try again later.");
+                        Log.e( "RandomHadithError", "Random Hadith is null" );
+                        showToast( "Failed to load a random Hadith. Please try again later." );
                     }
                 } else {
                     // Handle the case where hadithList is empty
-                    Log.e("HadithListError", "List of Hadiths is empty");
-                    showToast("No Hadiths available at the moment. Please check your data source.");
+                    Log.e( "HadithListError", "List of Hadiths is empty" );
+                    showToast( "No Hadiths available at the moment. Please check your data source." );
                 }
             } else {
                 // Handle the case where jsonString is null or empty
-                Log.e("JsonLoadError", "JSON data is null or empty");
-                showToast("Failed to load JSON data. Please check your network connection.");
+                Log.e( "JsonLoadError", "JSON data is null or empty" );
+                showToast( "Failed to load JSON data. Please check your network connection." );
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch ( JSONException e ) {
+            e.printStackTrace( );
             // Handle the JSON parsing exception
-            Log.e("JsonParsingError", "Error parsing JSON data: " + e.getMessage());
-            showToast("An error occurred while parsing JSON data. Please try again later.");
+            Log.e( "JsonParsingError", "Error parsing JSON data: " + e.getMessage( ) );
+            showToast( "An error occurred while parsing JSON data. Please try again later." );
         }
     }
 
-    private void showToast(String message) {
-        // Display a toast message to inform the user about errors
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    private void showToast( String message ) {
+        Toast.makeText( this, message, Toast.LENGTH_SHORT ).show( );
     }
-
-
-
-
-
 
 
 }

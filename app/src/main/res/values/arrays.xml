@@ -31,22 +31,17 @@
         <item>2032</item>
     </string-array>
     <string-array name="prayer_methods">
-        <item>Shia Ithna-Ansari</item>
-        <item>University of Islamic Sciences, Karachi</item>
-        <item>Islamic Society of North America</item>
-        <item>Muslim World League</item>
-        <item>Umm Al-Qura University, Makkah</item>
-        <item>Egyptian General Authority of Survey</item>
-        <item>Institute of Geophysics, University of Tehran</item>
-        <item>Gulf Region</item>
-        <item>Kuwait</item>
-        <item>Qatar</item>
-        <item>Majlis Ugama Islam Singapura, Singapore</item>
-        <item>Union Organization islamic de France</item>
-        <item>Diyanet İşleri Başkanlığı, Turkey</item>
-        <item>Spiritual Administration of Muslims of Russia</item>
-        <item>Moonsighting Committee Worldwide (also requires shafaq parameter)</item>
-        <item>Dubai (unofficial)</item>
+        <item>MUSLIM_WORLD_LEAGUE</item>
+        <item>EGYPTIAN</item>
+        <item>KARACHI</item>
+        <item>UMM_AL_QURA</item>
+        <item>DUBAI</item>
+        <item>MOON_SIGHTING_COMMITTEE</item>
+        <item>NORTH_AMERICA</item>
+        <item>KUWAIT</item>
+        <item>QATAR</item>
+        <item>SINGAPORE</item>
+        <item>OTHER</item>
     </string-array>
 
 
