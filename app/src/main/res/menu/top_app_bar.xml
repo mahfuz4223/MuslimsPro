@@ -9,4 +9,9 @@
         android:contentDescription="know more more about this application"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/setting"
+        android:title="Setting"
+        app:showAsAction="never" />
+
 </menu>

@@ -5,82 +5,102 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".calander.CalendarActivity">
 
-    <!-- Theme Change Option -->
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/change_theme"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/theme_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/dark_theme"
-        app:trackTint="@color/cardview_dark_background"/>
-
-    <!-- Prayer Method Spinner -->
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/prayer_method"
-        android:layout_marginTop="24dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintEnabled="false">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp">
 
-        <Spinner
-            android:id="@+id/prayerMethodSpinner"
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/location"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
+
+
+
+        <!-- Theme Change Option -->
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/change_theme"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/theme_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dark_theme"
+            app:trackTint="@color/cardview_dark_background"/>
+
+        <!-- Prayer Method Spinner -->
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prayer_method"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:entries="@array/prayer_methods" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:hintEnabled="false">
 
-    <!-- Madhab Selection -->
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="madhab"
-        android:layout_marginTop="24dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+            <Spinner
+                android:id="@+id/prayerMethodSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:entries="@array/prayer_methods" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <RadioGroup
-        android:id="@+id/madhab_radio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/radio_hanafi"
+        <!-- Madhab Selection -->
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hanafi"
-            app:buttonTint="@color/purple_500"/>
+            android:text="Madhab"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/radio_shafi"
+        <RadioGroup
+            android:id="@+id/madhab_radio_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Shafi"
-            app:buttonTint="@color/purple_500"/>
-    </RadioGroup>
+            android:orientation="horizontal">
 
-    <!-- Save Button -->
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/purple_700"
-        android:textColor="@android:color/white" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/radio_hanafi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hanafi"
+                app:buttonTint="@color/purple_500"/>
 
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/radio_shafi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shafi"
+                app:buttonTint="@color/purple_500"/>
+        </RadioGroup>
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/purple_700"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 </LinearLayout>

@@ -767,7 +767,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/rakatTabelCard"
+                    android:id="@+id/QuranTabelCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="1.5dp"
@@ -786,12 +786,12 @@
                         <ImageView
                             android:layout_width="40sp"
                             android:layout_height="40sp"
-                            android:src="@drawable/ic_mosque_b" />
+                            android:src="@drawable/ic_sound_waves" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="রাকাত টেবিলা"
+                            android:text="Quran Audio"
                             android:fontFamily="@font/bangla"
                             android:textColor="#424242"
                             android:textSize="14sp" />
