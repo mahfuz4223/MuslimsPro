@@ -66,6 +66,18 @@ public class KalimaActivity extends AppCompatActivity {
         setupExpandableCard(R.id.img6, R.id.expandableView6);
         setupExpandableCard(R.id.img7, R.id.expandableView7);
 
+
+        setupExpandableCardText(R.id.sub1, R.id.expandableView1);
+        setupExpandableCardText(R.id.sub2, R.id.expandableView2);
+        setupExpandableCardText(R.id.sub3, R.id.expandableView3);
+        setupExpandableCardText(R.id.sub4, R.id.expandableView4);
+        setupExpandableCardText(R.id.sub5, R.id.expandableView5);
+        setupExpandableCardText(R.id.sub6, R.id.expandableView6);
+        setupExpandableCardText(R.id.sub7, R.id.expandableView7);
+
+
+
+
         m10841g0();  // Call the JSON processing method
 
 
@@ -87,6 +99,26 @@ public class KalimaActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+
+    // Method for setting up expandable card with a TextView
+    private void setupExpandableCardText(final int textViewId, final int expandableViewId) {
+        TextView textView = findViewById(textViewId);
+        final LinearLayout expandableView = findViewById(expandableViewId);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (expandableView.getVisibility() == View.GONE) {
+                    expandableView.setVisibility(View.VISIBLE);
+                } else {
+                    expandableView.setVisibility(View.GONE);
+                }
+            }
+        };
+
+        textView.setOnClickListener(onClickListener);
     }
 
     private void m10841g0() {

@@ -10,9 +10,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SearchView;
@@ -39,7 +37,6 @@ import com.dark.muslimspro.audioQuran.audioQuran;
 import com.dark.muslimspro.tools.BanglaDateConverter;
 import com.dark.muslimspro.tools.CircularProgressBar;
 import com.dark.muslimspro.tools.NetworkChangeReceiver;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -59,8 +56,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
-
     private static final int SETTINGS_REQUEST_CODE = 1;
 
     private CalculationMethod selectedPrayerMethod;
@@ -73,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     // Other variables
     private HadithManager hadithManager;
     private TextView hadithNameTextView, hadithDescriptionTextView, hadithReferencesTextView;
-    private RequestQueue requestQueue;
     private SharedPreferences sharedPreferences;
     private NetworkChangeReceiver networkChangeReceiver;
 
@@ -84,11 +78,16 @@ public class MainActivity extends AppCompatActivity {
     private List< String > locations;
 
 
-    private MaterialCardView tasbihCardView, QuranTabelCard, calanderView, compassCardView, namesbtn, kalimabtn, settingsButton;
+    private MaterialCardView QuranTabelCard;
+    private MaterialCardView calanderView;
+    private MaterialCardView compassCardView;
+    private MaterialCardView namesbtn;
+    private MaterialCardView kalimabtn;
+    private MaterialCardView settingsButton;
     private CircularProgressBar nextTimeToGoProgress;
-    private double latitude, longitude;
+    private String latitude, longitude;
 
-    private Runnable updateTimerRunnable = new Runnable ( ) {
+    private final Runnable updateTimerRunnable = new Runnable ( ) {
         @Override
         public void run( ) {
             // Implement the code to update the timer here
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_MADHAB = "Madhab";
 
 
-    private Handler handler = new Handler ( );
+    private final Handler handler = new Handler ( );
 
 
     private static final String HIJRI_JSON = "[\n" +
@@ -219,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Find the MaterialCardView with ID "tasbih"
-        tasbihCardView = findViewById ( R.id.tasbih );
+        MaterialCardView tasbihCardView = findViewById ( R.id.tasbih );
         QuranTabelCard = findViewById ( R.id.QuranTabelCard );
         calanderView = findViewById ( R.id.calanderCard );
         compassCardView = findViewById ( R.id.compassCard );
@@ -233,20 +232,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Set click listener for linner_location
-        linnerLocation.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Show the popup
-                showLocationPopup ( );
-            }
+        linnerLocation.setOnClickListener ( v -> {
+            // Show the popup
+            showLocationPopup ( );
         } );
-
-        requestQueue = Volley.newRequestQueue ( this );
-
-        sharedPreferences = getSharedPreferences ( "prayer_times" , Context.MODE_PRIVATE );
-        // Initialize SharedPreferences
-        sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-
 
 
         try {
@@ -269,6 +258,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         NetworkConnected ( );
+
+
+
+        checkAndShowLocationPopup();
+
 
         //bangla added
 
@@ -307,82 +301,70 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Display the current prayer method and madhab
-        String toastMessage = "Prayer Method: " + selectedPrayerMethod + ", Madhab: " + selectedMadhab;
-        Toast.makeText ( this , toastMessage , Toast.LENGTH_SHORT ).show ( );
+
+
+        showToast (  "Prayer Method: " + selectedPrayerMethod + ", Madhab: " + selectedMadhab );
 
 
         // Set an OnClickListener on the tasbihCardView
-        tasbihCardView.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Create an Intent to navigate to the desired activity
-                Intent intent = new Intent ( MainActivity.this , TasbihActivity.class );
+        tasbihCardView.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the desired activity
+            Intent intent = new Intent ( MainActivity.this , TasbihActivity.class );
 
-                // Start the new activity
-                startActivity ( intent );
-            }
+            // Start the new activity
+            startActivity ( intent );
         } );
 
-        QuranTabelCard.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Create an Intent to navigate to the desired activity
-                Intent intent = new Intent ( MainActivity.this , audioQuran.class );
+        QuranTabelCard.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the desired activity
+            Intent intent = new Intent ( MainActivity.this , audioQuran.class );
 
-                // Start the new activity
-                startActivity ( intent );
-            }
+            // Start the new activity
+            startActivity ( intent );
         } );
 
 
-        compassCardView.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent ( MainActivity.this , QiblaActivity.class );
+        compassCardView.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the CalendarActivity
+            Intent intent = new Intent ( MainActivity.this , QiblaActivity.class );
 
-                // Start the new activity
-                startActivity ( intent );
-            }
+            // Start the new activity
+            startActivity ( intent );
         } );
 
-        namesbtn.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent ( MainActivity.this , AllahAr99NamAndFojilotMainActivity.class );
+        namesbtn.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the CalendarActivity
+            Intent intent = new Intent ( MainActivity.this , AllahAr99NamAndFojilotMainActivity.class );
 
-                // Start the new activity
-                startActivity ( intent );
-            }
+            // Start the new activity
+            startActivity ( intent );
         } );
 
         // Set an OnClickListener on the settingsButton to open the SettingActivity
-        settingsButton.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
+        settingsButton.setOnClickListener ( v -> {
 
-                Intent intent = new Intent ( MainActivity.this , SettingsActivity.class );
+            Intent intent = new Intent ( MainActivity.this , SettingsActivity.class );
 
-                startActivityForResult ( intent , SETTINGS_REQUEST_CODE );
+            startActivityForResult ( intent , SETTINGS_REQUEST_CODE );
 
-            }
         } );
 
-        kalimabtn.setOnClickListener ( new View.OnClickListener ( ) {
-            @Override
-            public void onClick( View v ) {
-                // Create an Intent to navigate to the CalendarActivity
-                Intent intent = new Intent ( MainActivity.this , KalimaActivity.class );
+        kalimabtn.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the CalendarActivity
+            Intent intent = new Intent ( MainActivity.this , KalimaActivity.class );
 
-                // Start the new activity
-                startActivity ( intent );
-            }
+            // Start the new activity
+            startActivity ( intent );
         } );
 
+        calanderView.setOnClickListener ( v -> {
+            // Create an Intent to navigate to the CalendarActivity
+            Intent intent = new Intent ( MainActivity.this , ZakatActivity.class );
 
+            // Start the new activity
+            startActivity ( intent );
+        } );
     }
-
 
 
     private void showLocationPopup() {
@@ -413,24 +395,25 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Set item click listener for the RecyclerView
-        adapter.setOnItemClickListener(new DistrictAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(District district) {
-                // Update the selected location TextView
-                locationText.setText(district.getBnName());
+        adapter.setOnItemClickListener(district -> {
+            // Update the selected location TextView
+            locationText.setText(district.getBnName());
 
-                // Save the selected location
-                saveSelectedLocation(district);
+            // Save the selected location and its latitude and longitude to SharedPreferences
+            SharedPreferences.Editor editor = getSharedPreferences("LocationData", MODE_PRIVATE).edit();
+            editor.putString("SelectedLocation", district.getBnName());
+            editor.putString("Latitude", String.valueOf(district.getLat()));
+            editor.putString("Longitude", String.valueOf(district.getLon()));
+            editor.apply();
 
-                // Calculate and display prayer times
-                calculateAndDisplayPrayerTimes(
-                        Double.parseDouble(district.getLat()),
-                        Double.parseDouble(district.getLon())
-                );
+//             Calculate and display prayer times
+            calculateAndDisplayPrayerTimes(
+                    String.valueOf(district.getLat()),
+                    String.valueOf(district.getLon())
+            );
 
-                // Dismiss the dialog
-                dialog.dismiss();
-            }
+            // Dismiss the dialog
+            dialog.dismiss();
         });
 
         // Add a TextWatcher to the customSearchView
@@ -450,89 +433,75 @@ public class MainActivity extends AppCompatActivity {
 
         // Show the dialog
         dialog.show();
-
-        // Get the selected location from the adapter
-        District selectedDistrict = adapter.getSelectedDistrict();
-
-        // Check if a location is selected
-        if (selectedDistrict != null) {
-            // Set the selected location name to the locationText TextView
-            locationText.setText(selectedDistrict.getName());
-
-            // Close the popup
-            dialog.dismiss();
-        }
     }
 
+    public void checkAndShowLocationPopup() {
+        SharedPreferences preferences = getSharedPreferences("LocationData", MODE_PRIVATE);
+        String selectedLocation = preferences.getString("SelectedLocation", "");
+        String latitude = preferences.getString("Latitude", "");
+        String longitude = preferences.getString("Longitude", "");
 
-
-
-
-    private void saveSelectedLocation(District district) {
-        // Set the selected district in the adapter
-        adapter.setSelectedDistrict(district);
-
-    }
-
-
-
-
-
-
-
-    private String getHijriDate( ) throws JSONException, ParseException {
-        JSONArray hijriMonths = new JSONArray ( HIJRI_JSON );
-        SimpleDateFormat sdf = new SimpleDateFormat ( "yyyy-MM-dd" );
-        Date today = new Date ( );
-
-        for ( int i = 0; i < hijriMonths.length ( ); i++ ) {
-            JSONObject month = hijriMonths.getJSONObject ( i );
-            Date startDate = sdf.parse ( month.getString ( "start" ) );
-            Date endDate = sdf.parse ( month.getString ( "end" ) );
-
-            if ( !today.before ( startDate ) && !today.after ( endDate ) ) {
-                // Calculate Hijri date
-                long difference = today.getTime ( ) - startDate.getTime ( );
-                int days = ( int ) ( difference / ( 24 * 60 * 60 * 1000 ) ) + 1; // +1 for inclusive count
-
-                return days + "  " + month.getString ( "name" ) + "  " + month.getString ( "hijri_year" );
-            }
-        }
-
-        return "Hijri date not found";
-    }
-
-
-    private void calculateAndDisplayPrayerTimes( double latitude , double longitude ) {
-        // Get prayer times and end times
-        PrayerTimes prayerTimes = calculatePrayerTimes ( latitude , longitude , selectedPrayerMethod , selectedMadhab );
-        if ( prayerTimes != null ) {
-            displayPrayerTimes ( prayerTimes );
-            displayEndTimes ( prayerTimes );
-            determineUpcomingPrayer ( prayerTimes );
-            updateCircularProgressBar ( prayerTimes );
+        if (selectedLocation == null || latitude == null || longitude == null) {
+            showLocationPopup(); // Show popup if no location data is saved
         } else {
-            // Handle error or inform the user
+            // Use the saved location data
+            locationText.setText(selectedLocation);
 
-            Toast.makeText ( getApplicationContext ( ) , "Failed to calculate prayer times. Please check your settings" , Toast.LENGTH_SHORT ).show ( );
+            Log.d("LocationData", "Latitude: " + latitude + ", Longitude: " + longitude);
 
+            calculateAndDisplayPrayerTimes(latitude, longitude);
         }
     }
 
-    private PrayerTimes calculatePrayerTimes( double latitude , double longitude , CalculationMethod method , Madhab madhab ) {
-        Coordinates coordinates = new Coordinates ( latitude , longitude );
-        DateComponents dateComponents = DateComponents.from ( new Date ( ) );
+    public void calculateAndDisplayPrayerTimes(String latitude, String longitude) {
+        if (selectedPrayerMethod == null) {
+            // Initialize selectedPrayerMethod here
 
-        CalculationParameters params = method.getParameters ( );
+        }
+
+        if (selectedPrayerMethod != null) {
+            Log.d("PrayerTimes", "Calculating prayer times for Latitude: " + latitude + ", Longitude: " + longitude);
+
+            // Get prayer times and end times
+            PrayerTimes prayerTimes = calculatePrayerTimes(latitude, longitude, selectedPrayerMethod, selectedMadhab);
+            if (prayerTimes != null) {
+                displayPrayerTimes(prayerTimes);
+                displayEndTimes(prayerTimes);
+                determineUpcomingPrayer(prayerTimes);
+                updateCircularProgressBar(prayerTimes);
+            } else {
+                // Handle error or inform the user
+                Toast.makeText(getApplicationContext(), "Failed to calculate prayer times. Please check your settings", Toast.LENGTH_SHORT).show();
+                Log.e("PrayerTimes", "Failed to calculate prayer times. Latitude: " + latitude + ", Longitude: " + longitude);
+            }
+        } else {
+            // Handle case where selectedPrayerMethod is still null
+            Toast.makeText(getApplicationContext(), "Prayer method is not selected. Please select a method.", Toast.LENGTH_SHORT).show();
+            Log.e("PrayerTimes", "Prayer method is not selected. Latitude: " + latitude + ", Longitude: " + longitude);
+        }
+    }
+
+
+
+    private PrayerTimes calculatePrayerTimes(String latitude, String longitude, CalculationMethod method, Madhab madhab) {
+        // Convert latitude and longitude strings to doubles
+        double lat = Double.parseDouble(latitude);
+        double lon = Double.parseDouble(longitude);
+
+        Coordinates coordinates = new Coordinates(lat, lon);
+        DateComponents dateComponents = DateComponents.from(new Date());
+
+        CalculationParameters params = method.getParameters();
         params.madhab = madhab;
 
         try {
-            return new PrayerTimes ( coordinates , dateComponents , params );
-        } catch ( Exception e ) {
-            e.printStackTrace ( );
+            return new PrayerTimes(coordinates, dateComponents, params);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
+
 
     private void displayPrayerTimes( PrayerTimes prayerTimes ) {
         // Display the five daily prayers
@@ -588,7 +557,6 @@ public class MainActivity extends AppCompatActivity {
             if ( dayOfWeek == Calendar.FRIDAY ) {
                 // It's Friday, so Jumu'ah prayer is upcoming
                 upcoming_prayer_name.setText ( "Jumu'ah" );
-                return;
             } else setCurrentAndUpcomingPrayer ( "Fajr" , "Dhuhr" );
 
         } else if ( now.before ( prayerTimes.asr ) ) {
@@ -597,7 +565,6 @@ public class MainActivity extends AppCompatActivity {
             if ( dayOfWeek == Calendar.FRIDAY ) {
                 // It's Friday, so Jumu'ah prayer is upcoming
                 current_prayer_time_name_Text.setText ( "Jumu'ah" );
-                return;
             } else setCurrentAndUpcomingPrayer ( "Dhuhr" , "Asr" );
 
         } else if ( now.before ( prayerTimes.maghrib ) ) {
@@ -627,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Determine the current and next prayer times
         if ( now.before ( prayerTimes.fajr ) ) {
-            currentPrayerMillis = 0; // Before Fajr
+            // Before Fajr
             nextPrayerMillis = ( prayerTimes.fajr.getTime ( ) - currentTimeMillis ) / 1000; // Convert to seconds
         } else if ( now.before ( prayerTimes.dhuhr ) ) {
             currentPrayerMillis = ( currentTimeMillis - prayerTimes.fajr.getTime ( ) ) / 1000; // Convert to seconds
@@ -673,6 +640,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private String getHijriDate( ) throws JSONException, ParseException {
+        JSONArray hijriMonths = new JSONArray ( HIJRI_JSON );
+        SimpleDateFormat sdf = new SimpleDateFormat ( "yyyy-MM-dd" );
+        Date today = new Date ( );
+
+        for ( int i = 0; i < hijriMonths.length ( ); i++ ) {
+            JSONObject month = hijriMonths.getJSONObject ( i );
+            Date startDate = sdf.parse ( month.getString ( "start" ) );
+            Date endDate = sdf.parse ( month.getString ( "end" ) );
+
+            if ( !today.before ( startDate ) && !today.after ( endDate ) ) {
+                // Calculate Hijri date
+                long difference = today.getTime ( ) - startDate.getTime ( );
+                int days = ( int ) ( difference / ( 24 * 60 * 60 * 1000 ) ) + 1; // +1 for inclusive count
+
+                return days + "  " + month.getString ( "name" ) + "  " + month.getString ( "hijri_year" );
+            }
+        }
+
+        return "Hijri date not found";
+    }
+
+
     @Override
     protected void onDestroy( ) {
         super.onDestroy ( );
@@ -687,13 +677,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private boolean NetworkConnected( ) {
+    private void NetworkConnected( ) {
         ConnectivityManager connectivityManager = ( ConnectivityManager ) getSystemService ( Context.CONNECTIVITY_SERVICE );
         if ( connectivityManager != null ) {
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo ( );
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected ( );
+            if ( activeNetworkInfo != null ) {
+                activeNetworkInfo.isConnected ( );
+            }
         }
-        return false;
     }
 
 

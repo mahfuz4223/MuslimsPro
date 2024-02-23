@@ -1,12 +1,11 @@
 package com.dark.muslimspro;
 
-
 public class District {
     private String id;
     private String name;
     private String bnName;
-    private String lat;
-    private String lon;
+    private String lat; // Change to String
+    private String lon; // Change to String
 
     public District(String id, String name, String bnName, String lat, String lon) {
         this.id = id;
@@ -40,12 +39,14 @@ public class District {
         this.bnName = bnName;
     }
 
+
     public String getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public String setLat(String lat) {
         this.lat = lat;
+        return lat;
     }
 
     public String getLon() {

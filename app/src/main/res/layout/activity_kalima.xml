@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true"
@@ -83,8 +84,8 @@
                                             android:id="@+id/sub1"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                             android:text="@string/next_prayer"
-                                         android:fontFamily="@font/bangla"
+                                            android:text="@string/next_prayer"
+                                            android:fontFamily="@font/bangla"
                                             android:layout_marginStart="20dp"
                                             android:layout_marginEnd="3dp" />
                                     </LinearLayout>
@@ -265,16 +266,16 @@
                                         android:layout_weight="1">
 
                                         <TextView
-                                            android:textSize="20sp"
-                                            android:textColor="#000"
-                                            android:gravity="center"
                                             android:id="@+id/sub3"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                             android:text="@string/next_prayer"
-                                         android:fontFamily="@font/bangla"
                                             android:layout_marginStart="20dp"
-                                            android:layout_marginEnd="3dp" />
+                                            android:layout_marginEnd="3dp"
+                                            android:fontFamily="@font/bangla"
+                                            android:gravity="center"
+                                            android:text="@string/next_prayer"
+                                            android:textColor="#000"
+                                            android:textSize="20sp" />
                                     </LinearLayout>
 
                                     <ImageView
