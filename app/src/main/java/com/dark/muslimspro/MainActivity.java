@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = dialog.findViewById(R.id.recyclerView);
 
         // Initialize the adapter for RecyclerView
-        adapter = new DistrictAdapter();
+        DistrictAdapter adapter = new DistrictAdapter();
         adapter.setDistricts(districtList);
         recyclerView.setAdapter(adapter);
 
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("Longitude", String.valueOf(district.getLon()));
             editor.apply();
 
-//             Calculate and display prayer times
+            // Calculate and display prayer times
             calculateAndDisplayPrayerTimes(
                     String.valueOf(district.getLat()),
                     String.valueOf(district.getLon())
@@ -441,43 +441,45 @@ public class MainActivity extends AppCompatActivity {
         String latitude = preferences.getString("Latitude", "");
         String longitude = preferences.getString("Longitude", "");
 
-        if (selectedLocation == null || latitude == null || longitude == null) {
+        if (selectedLocation.isEmpty() || latitude.isEmpty() || longitude.isEmpty()) {
             showLocationPopup(); // Show popup if no location data is saved
         } else {
             // Use the saved location data
             locationText.setText(selectedLocation);
 
-            Log.d("LocationData", "Latitude: " + latitude + ", Longitude: " + longitude);
+            Log.d("LocationDatass", "Latitude: " + latitude + ", Longitude: " + longitude);
 
             calculateAndDisplayPrayerTimes(latitude, longitude);
         }
     }
 
+//
+
+
     public void calculateAndDisplayPrayerTimes(String latitude, String longitude) {
         if (selectedPrayerMethod == null) {
             // Initialize selectedPrayerMethod here
-
+            selectedPrayerMethod = CalculationMethod.KARACHI; // Set a default value if not provided
         }
 
-        if (selectedPrayerMethod != null) {
-            Log.d("PrayerTimes", "Calculating prayer times for Latitude: " + latitude + ", Longitude: " + longitude);
+        if (selectedMadhab == null) {
+            // Initialize selectedMadhab here
+            selectedMadhab = Madhab.HANAFI; // Set a default value if not provided
+        }
 
-            // Get prayer times and end times
-            PrayerTimes prayerTimes = calculatePrayerTimes(latitude, longitude, selectedPrayerMethod, selectedMadhab);
-            if (prayerTimes != null) {
-                displayPrayerTimes(prayerTimes);
-                displayEndTimes(prayerTimes);
-                determineUpcomingPrayer(prayerTimes);
-                updateCircularProgressBar(prayerTimes);
-            } else {
-                // Handle error or inform the user
-                Toast.makeText(getApplicationContext(), "Failed to calculate prayer times. Please check your settings", Toast.LENGTH_SHORT).show();
-                Log.e("PrayerTimes", "Failed to calculate prayer times. Latitude: " + latitude + ", Longitude: " + longitude);
-            }
+        Log.d("PrayerTimes", "Calculating prayer times for Latitude: " + latitude + ", Longitude: " + longitude);
+
+        // Get prayer times and end times
+        PrayerTimes prayerTimes = calculatePrayerTimes(latitude, longitude, selectedPrayerMethod, selectedMadhab);
+        if (prayerTimes != null) {
+            displayPrayerTimes(prayerTimes);
+            displayEndTimes(prayerTimes);
+            determineUpcomingPrayer(prayerTimes);
+            updateCircularProgressBar(prayerTimes);
         } else {
-            // Handle case where selectedPrayerMethod is still null
-            Toast.makeText(getApplicationContext(), "Prayer method is not selected. Please select a method.", Toast.LENGTH_SHORT).show();
-            Log.e("PrayerTimes", "Prayer method is not selected. Latitude: " + latitude + ", Longitude: " + longitude);
+            // Handle error or inform the user
+            Toast.makeText(getApplicationContext(), "Failed to calculate prayer times. Please check your settings", Toast.LENGTH_SHORT).show();
+            Log.e("PrayerTimes", "Failed to calculate prayer times. Latitude: " + latitude + ", Longitude: " + longitude);
         }
     }
 
